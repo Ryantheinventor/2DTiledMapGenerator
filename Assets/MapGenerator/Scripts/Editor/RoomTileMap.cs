@@ -15,6 +15,7 @@ public class RoomTileMap : ScriptableObject
     public List<TileWithState> tileSet = new List<TileWithState>();
 
     public AxisMode axisMode = AxisMode.XY;
+    public bool allowRotation = false;
 
     [Serializable]
     public struct TileWithState

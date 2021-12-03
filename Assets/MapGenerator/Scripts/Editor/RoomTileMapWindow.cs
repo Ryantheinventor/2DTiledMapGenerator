@@ -152,7 +152,8 @@ class RoomTileMapWindow : EditorWindow
                         break;
                 }
             }
-
+            tileMap.allowRotation = EditorGUILayout.Toggle("Allow Rotation", tileMap.allowRotation);
+            totalHeight += 20;
             #endregion
         }
         EditorGUILayout.EndScrollView();
