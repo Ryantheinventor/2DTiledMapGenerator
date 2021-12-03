@@ -7,7 +7,6 @@ using UnityEditor;
 class RoomTileMapWindow : EditorWindow 
 {
 
-
     private int prefabDisplayRowCount = 5;
 
     public RoomTileMap tileMap = null; 
