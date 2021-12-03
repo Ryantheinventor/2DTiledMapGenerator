@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-
+using UnityEditor.Callbacks;
+using System;
 
 class RoomTileMapWindow : EditorWindow 
 {
@@ -45,7 +46,7 @@ class RoomTileMapWindow : EditorWindow
         {          
             #region special tile lists
             //display special rooms like start and ending rooms
-            specialRoomsFoldout = EditorGUILayout.Foldout(specialRoomsFoldout, "Start and End Tiles");
+            specialRoomsFoldout = EditorGUILayout.Foldout(specialRoomsFoldout, "Special Tile Types");
             totalHeight += 20;
             if(specialRoomsFoldout)
             {   
@@ -93,6 +94,32 @@ class RoomTileMapWindow : EditorWindow
 
                 //draw every ending tile onto the window
                 listDisplaySize = DisplayTileList(ref tileMap.endTiles, totalHeight);
+                EditorGUILayout.Space(listDisplaySize);
+                totalHeight += listDisplaySize;
+                
+                #endregion
+
+                GuiLine();
+                totalHeight += 1;
+
+                #region EndingTile
+
+                GUILayout.Label("Door Caping Tile(s):", EditorStyles.boldLabel);
+                GameObject newCap = (GameObject)EditorGUILayout.ObjectField("Add new door cap tile:", null, typeof(GameObject), false);
+                totalHeight += 40;//acount for Text Label for the Exit Room catagories
+
+                if(newCap)
+                {
+                    tileMap.doorCaps.Add(new RoomTileMap.TileWithState()
+                    {
+                        tileObject = newCap,
+                        tileUsable = true, 
+                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newCap)) 
+                    });
+                }
+
+                //draw every ending tile onto the window
+                listDisplaySize = DisplayTileList(ref tileMap.doorCaps, totalHeight);
                 EditorGUILayout.Space(listDisplaySize);
                 totalHeight += listDisplaySize;
                 
@@ -201,6 +228,7 @@ class RoomTileMapWindow : EditorWindow
 
     static Texture2D GetPrefabPreview(string path)
     {
+        Debug.Log("Generating Preview for:" + path);
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
         var editor = UnityEditor.Editor.CreateEditor(prefab);
         Texture2D tex = editor.RenderStaticPreview(path, null, 200, 200);
@@ -213,7 +241,7 @@ class RoomTileMapWindow : EditorWindow
     {
         GUI.Box(new Rect(pos.x, pos.y, 100, 140), "");
         GUI.Box(new Rect(pos.x, pos.y, 100, 20), tile.tileObject.name);
-        Texture2D tex = GetPrefabPreview(AssetDatabase.GetAssetPath(tile.tileObject));
+        Texture2D tex = tile.previewImage;
         GUI.Label(new Rect(pos.x+1, pos.y + 21, 98, 98), tile.previewImage);
         return GUI.Button(new Rect(pos.x+1, pos.y + 120, 98, 18), "Remove");
     }
@@ -230,6 +258,7 @@ class RoomTileMapWindow : EditorWindow
     //re renders the preview images and applies them to the tilemap asset
     void ReRenderPrfabPreviews()
     {
+        Debug.Log("Re-Render");
         for(int i = 0; i < tileMap.startTiles.Count; i++)
         {
             tileMap.startTiles[i] = new RoomTileMap.TileWithState()
@@ -257,5 +286,32 @@ class RoomTileMapWindow : EditorWindow
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.tileSet[i].tileObject))
             };
         }
+        for(int i = 0; i < tileMap.tileSet.Count; i++)
+        {
+            tileMap.doorCaps[i] = new RoomTileMap.TileWithState()
+            {
+                tileObject = tileMap.doorCaps[i].tileObject,
+                tileUsable = tileMap.doorCaps[i].tileUsable,
+                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.doorCaps[i].tileObject))
+            };
+        }
     }
+
+    [OnOpenAssetAttribute(1)]
+    public static bool OpenAsset(int instanceID, int line)
+    {
+        try
+        {
+            RoomTileMap tileMapAsset = (RoomTileMap)EditorUtility.InstanceIDToObject(instanceID);
+            RoomTileMapWindow window = (RoomTileMapWindow) EditorWindow.GetWindow( typeof(RoomTileMapWindow), false, "RoomTileMapEditor" );
+            window.tileMap = tileMapAsset;
+            window.Show();
+            return true;
+        }
+        catch(InvalidCastException e)
+        {
+            return false;
+        }
+    }
+
 }

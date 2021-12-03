@@ -12,7 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 722279adc464b468fbccf98830141117, type: 3}
   m_Name: ExampleRoomTileMap
   m_EditorClassIdentifier: 
-  startTiles: []
-  endTiles: []
-  tileSet: []
+  startTiles:
+  - tileObject: {fileID: 137628699757244116, guid: 3e690033054bbc710b2ce34bd7fd06e3, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+  endTiles:
+  - tileObject: {fileID: 5294487868799462609, guid: 516ff99b86109b4cca179643d3d74141, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+  doorCaps:
+  - tileObject: {fileID: 4173169665247554982, guid: cca2b66e43ce30fe1b29482a6633ea8b, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+  tileSet:
+  - tileObject: {fileID: 6394094700702064275, guid: 1337e141291aee9bca494b4bc5136712, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
   axisMode: 0
+  allowRotation: 1
+  maxRoomDistance: 0

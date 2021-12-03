@@ -1184,6 +1184,7 @@ GameObject:
   m_Component:
   - component: {fileID: 137628699757244114}
   - component: {fileID: 137628699757244117}
+  - component: {fileID: 5006624377138872325}
   m_Layer: 0
   m_Name: StartingRoom
   m_TagString: Untagged
@@ -1218,3 +1219,20 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
+--- !u!114 &5006624377138872325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137628699757244116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7ff40ea54aadebd4a0b556aa1b0ca63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doorPositions:
+  - {x: 5, y: 0}
+  tileSize: {x: 10, y: 10}
+  doorsTaken: 
+  gizmoAxisMode: 0
