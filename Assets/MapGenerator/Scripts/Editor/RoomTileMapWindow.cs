@@ -19,6 +19,9 @@ class RoomTileMapWindow : EditorWindow
 
     private Vector2 scrollPos = new Vector2(0,0);
 
+    /// <summary>
+    /// Opens the window in the editor
+    /// </summary>
     [MenuItem("Window/RandomMapGenerator/RoomTileMapEditor")]
     static void ShowWindow() 
     {
@@ -27,6 +30,9 @@ class RoomTileMapWindow : EditorWindow
         window.Show();
     }
 
+    /// <summary>
+    /// Called by Unity to update the window
+    /// </summary>
     void OnGUI() 
     {
         totalHeight = 0;
@@ -185,7 +191,9 @@ class RoomTileMapWindow : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
-    //returns height of just the displayed list
+    /// <summary>
+    /// returns height of just the displayed list
+    /// </summary>
     int DisplayTileList(ref List<RoomTileMap.TileWithState> tileList, int startingHeight)
     {
         int rowCount = 0;
@@ -211,11 +219,17 @@ class RoomTileMapWindow : EditorWindow
         return rowCount * 140;
     }
 
+    /// <summary>
+    /// Draws a line across the window
+    /// </summary>
     void GuiLine(int i_height = 1)
     {
         GuiLine(new Color(0.5f, 0.5f, 0.5f, 1f), i_height);
     }
 
+    /// <summary>
+    /// Draws a colored line across the window
+    /// </summary>
     void GuiLine(Color drawColor, int i_height = 1)
     {
         Rect rect = EditorGUILayout.GetControlRect(false, i_height );
@@ -225,10 +239,12 @@ class RoomTileMapWindow : EditorWindow
         EditorGUI.DrawRect(rect, drawColor);
     }
 
-
+    /// <summary>
+    /// generates a texture2D for the path given
+    /// </summary>
     static Texture2D GetPrefabPreview(string path)
     {
-        Debug.Log("Generating Preview for:" + path);
+        //Debug.Log("Generating Preview for:" + path);
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
         var editor = UnityEditor.Editor.CreateEditor(prefab);
         Texture2D tex = editor.RenderStaticPreview(path, null, 200, 200);
@@ -236,7 +252,9 @@ class RoomTileMapWindow : EditorWindow
         return tex;
     }
 
-    //returns true if the object should be removed
+    /// <summary>
+    /// returns true if the object should be removed
+    /// </summary>
     bool PrefabPreview(RoomTileMap.TileWithState tile, Vector2 pos)
     {
         GUI.Box(new Rect(pos.x, pos.y, 100, 140), "");
@@ -246,7 +264,9 @@ class RoomTileMapWindow : EditorWindow
         return GUI.Button(new Rect(pos.x+1, pos.y + 120, 98, 18), "Remove");
     }
 
-    //returns true if the object should be removed
+    /// <summary>
+    /// returns true if the object should be removed
+    /// </summary>
     bool PrefabPreviewWActiveState(RoomTileMap.TileWithState tile, Vector2 pos)
     {
         GUI.Box(new Rect(pos.x, pos.y, 100, 140), "");
@@ -255,10 +275,12 @@ class RoomTileMapWindow : EditorWindow
         return GUI.Button(new Rect(pos.x+1, pos.y + 120, 98, 18), "Remove");
     }
 
-    //re renders the preview images and applies them to the tilemap asset
+    /// <summary>
+    /// re-generates the preview images and applies them to the tilemap asset
+    /// </summary>
     void ReRenderPrfabPreviews()
     {
-        Debug.Log("Re-Render");
+        //Debug.Log("Re-Render");
         for(int i = 0; i < tileMap.startTiles.Count; i++)
         {
             tileMap.startTiles[i] = new RoomTileMap.TileWithState()
@@ -297,6 +319,9 @@ class RoomTileMapWindow : EditorWindow
         }
     }
 
+    /// <summary>
+    /// handles opening the settings asset in the unity editor
+    /// </summary>
     [OnOpenAssetAttribute(1)]
     public static bool OpenAsset(int instanceID, int line)
     {

@@ -58,8 +58,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   doorPositions:
-  - {x: 5, y: 0}
-  - {x: -5, y: 0}
+  - position: {x: 5, y: 0}
+    rotation: 0
+  - position: {x: -5, y: 0}
+    rotation: -180
   tileSize: {x: 10, y: 4}
   doorsTaken: 
   gizmoAxisMode: 0
