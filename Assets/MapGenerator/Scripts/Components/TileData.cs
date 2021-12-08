@@ -22,6 +22,19 @@ public class TileData : MonoBehaviour
 
     public RoomTileMap.AxisMode gizmoAxisMode = RoomTileMap.AxisMode.XY;
 
+
+    //TODO make this part look better in the inspector
+
+    public List<Collider> colliders3D = new List<Collider>();
+    public List<Collider> colliders2D = new List<Collider>();
+
+    void OnInspectorUpdate() 
+    {
+        if(colliders2D.Count > 0 && colliders3D.Count > 0)
+            Debug.LogError($"Collider type mix detected in TileData on:({gameObject.name}), please only use one type of collider to check for room overlapping, for now only 2D will be used.");   
+    }
+
+
     void OnDrawGizmos() 
     {
         Gizmos.color = Color.green;

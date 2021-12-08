@@ -63,6 +63,8 @@ MonoBehaviour:
   tileSize: {x: 10, y: 10}
   doorsTaken: 
   gizmoAxisMode: 0
+  colliders3D: []
+  colliders2D: []
 --- !u!1 &5294487868806706827
 GameObject:
   m_ObjectHideFlags: 0
@@ -647,8 +649,8 @@ Tilemap:
   - first: {x: -1, y: 0, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 6
-      m_TileSpriteIndex: 6
+      m_TileIndex: 5
+      m_TileSpriteIndex: 5
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -657,8 +659,8 @@ Tilemap:
   - first: {x: 0, y: 0, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 6
-      m_TileSpriteIndex: 6
+      m_TileIndex: 5
+      m_TileSpriteIndex: 5
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -1116,9 +1118,9 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 2
     m_Data: {fileID: 11400000, guid: 8b5aa57a64f7b77d2b949608b9b28cc7, type: 2}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
-  - m_RefCount: 60
+  - m_RefCount: 2
+    m_Data: {fileID: 11400000, guid: a88d5338a0d4fef8cb5086a76fc3908b, type: 2}
+  - m_RefCount: 58
     m_Data: {fileID: 11400000, guid: a9be5fab7ffe796838dce0e360770183, type: 2}
   - m_RefCount: 34
     m_Data: {fileID: 11400000, guid: 329b90205f34eb6a79d90eb0312bd740, type: 2}
@@ -1135,9 +1137,9 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 2
     m_Data: {fileID: 5910130096941564929, guid: fd26e7069b53b50e5a53ccfa512e55ea, type: 3}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
-  - m_RefCount: 60
+  - m_RefCount: 2
+    m_Data: {fileID: -5974971037593057278, guid: fd26e7069b53b50e5a53ccfa512e55ea, type: 3}
+  - m_RefCount: 58
     m_Data: {fileID: 1507650102820416284, guid: fd26e7069b53b50e5a53ccfa512e55ea, type: 3}
   - m_RefCount: 34
     m_Data: {fileID: -6980618789395889619, guid: fd26e7069b53b50e5a53ccfa512e55ea, type: 3}
