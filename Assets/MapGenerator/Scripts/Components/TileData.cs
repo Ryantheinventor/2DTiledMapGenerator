@@ -26,7 +26,7 @@ public class TileData : MonoBehaviour
     //TODO make this part look better in the inspector
 
     public List<Collider> colliders3D = new List<Collider>();
-    public List<Collider> colliders2D = new List<Collider>();
+    public List<Collider2D> colliders2D = new List<Collider2D>();
 
     void OnInspectorUpdate() 
     {

@@ -27,7 +27,10 @@ public class RoomTileMap : ScriptableObject
     public bool allowRotation = false;
 
     [HideInInspector]
-    public int maxRoomDistance;
+    public int maxRoomDistance = 10;
+
+    [HideInInspector]
+    public bool useRB2D = true;
 
     [Serializable]
     public struct TileWithState

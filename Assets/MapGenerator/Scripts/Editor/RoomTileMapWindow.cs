@@ -35,6 +35,7 @@ class RoomTileMapWindow : EditorWindow
     /// </summary>
     void OnGUI() 
     {
+        
         totalHeight = 0;
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos,true,false);
         GUILayout.Label("Tile Map", EditorStyles.boldLabel);
@@ -49,7 +50,9 @@ class RoomTileMapWindow : EditorWindow
         totalHeight += 41;
         //display the rest of the editor
         if(tileMap)
-        {          
+        {        
+            
+            
             #region special tile lists
             //display special rooms like start and ending rooms
             specialRoomsFoldout = EditorGUILayout.Foldout(specialRoomsFoldout, "Special Tile Types");
@@ -187,6 +190,7 @@ class RoomTileMapWindow : EditorWindow
             tileMap.allowRotation = EditorGUILayout.Toggle("Allow Rotation", tileMap.allowRotation);
             totalHeight += 20;
             #endregion
+            EditorUtility.SetDirty(tileMap);
         }
         EditorGUILayout.EndScrollView();
     }
@@ -338,5 +342,4 @@ class RoomTileMapWindow : EditorWindow
             return false;
         }
     }
-
 }

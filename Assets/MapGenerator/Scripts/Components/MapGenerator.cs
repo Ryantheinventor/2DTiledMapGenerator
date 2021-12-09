@@ -82,10 +82,10 @@ public class MapGenerator : MonoBehaviour
         TileWithState startingTileData = tileSet.startTiles[Random.Range(0,tileSet.startTiles.Count)];
         float rotation = tileSet.allowRotation ? 90 * Random.Range(0,4) : 0;
         
-        PlaceRoom(startingTileData.tileObject, new Vector2(0,0), rotation, tileSet.axisMode, -1, out List<DoorLocation> newRooms, out PlacedRoomData newRoomData, 0);
+        PlaceRoom(startingTileData.tileObject, new Vector2(0,0), rotation, tileSet.axisMode, -1, out List<DoorLocation> newRooms, out PlacedRoomData newRoomData, 0, tileSet.useRB2D);
         placedRooms.Add(newRoomData);
         openDoors.AddRange(newRooms);
-        int tempStop = 10;
+        int tempStop = 100;
         while(openDoors.Count > 0)
         {
             tempStop -= 1;
@@ -104,7 +104,9 @@ public class MapGenerator : MonoBehaviour
                 break;
             }
         }
-
+        //add all ending doors to the locked door catagory
+        lockedDoors.AddRange(openDoors);
+        openDoors = new List<DoorLocation>();
         return false;
     }
 
@@ -134,9 +136,20 @@ public class MapGenerator : MonoBehaviour
             roomProbabilities[roomIndex] = 0;
             roomFits = CheckRoomFits(openDoors[doorIndex], tileSet.tileSet[roomIndex], placedRooms, out Vector2 position, 
                           out float rotation, out PlacedRoomData newRoom, out List<DoorLocation> newDoors, 
-                          tileSet, openDoors[doorIndex].roomIndex);
-            placedRooms.Add(newRoom);
-            openDoors.AddRange(newDoors);
+                          tileSet, openDoors[doorIndex].roomIndex, out GameObject placedRoom);
+            if(!roomFits)
+            {
+                if(placedRoom)
+                {
+                    Destroy(placedRoom);
+                }
+            }
+            else
+            {
+                placedRooms.Add(newRoom);
+                openDoors.AddRange(newDoors);
+            }
+            
 
         }
         return true;
@@ -144,49 +157,14 @@ public class MapGenerator : MonoBehaviour
 
     }
 
-    private GameObject PlaceRoom(GameObject room, Vector2 position, float rotation, AxisMode axisMode, 
-                                 int ignoreDoorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData placedRoom, int roomIndex)
-    {
-        GameObject tileObject = Instantiate(room, transform);
-        switch(axisMode)
-        {
-            case AxisMode.XY:
-                tileObject.transform.position = new Vector3(position.x, position.y, 0);
-                tileObject.transform.eulerAngles = new Vector3(0, 0, rotation);
-                break;
-            case AxisMode.XZ:
-                tileObject.transform.position = new Vector3(position.x, 0, position.y);
-                tileObject.transform.eulerAngles = new Vector3(0, rotation, 0);
-                break;
-        }
-        
-        TileData td = tileObject.GetComponent<TileData>();
-        td.gizmoAxisMode = axisMode;
 
-        //add new doors to the openDoors list
-        newOpenDoors = new List<DoorLocation>();
-        for(int i = 0; i < td.doorPositions.Count; i++)
-        {
-            if(i != ignoreDoorIndex)
-            {
-                Vector3 rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(td.doorPositions[i].position.x, td.doorPositions[i].position.y, 0);
-                Vector2 mapSpaceDoorPos = new Vector2(rotDoorPosV3.x,rotDoorPosV3.y) + position;
-                newOpenDoors.Add(new DoorLocation(){ position = mapSpaceDoorPos, rotation = DegWrap(td.doorPositions[i].rotation + rotation), roomIndex = roomIndex });
-            }
-        }
-
-        placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, scale = td.tileSize };
-
-
-
-        return tileObject;
-    }
-
+    //checks if a room can fit in a specified position and rotation
     private bool CheckRoomFits(DoorLocation targetDoor, TileWithState tile, List<PlacedRoomData> placedRooms, out Vector2 position, 
-                               out float rotation, out PlacedRoomData newRoom, out List<DoorLocation> newDoors, RoomTileMap tileSet, int roomIndex)
+                               out float rotation, out PlacedRoomData newRoom, out List<DoorLocation> newDoors, RoomTileMap tileSet, int roomIndex, out GameObject placedRoom)
     {
         newRoom = new PlacedRoomData();
         newDoors = new List<DoorLocation>();
+        placedRoom = null;
 
         List<TileData.DoorValues> doors = tile.tileObject.GetComponent<TileData>().doorPositions;//get list of doors off of the tile
 
@@ -221,16 +199,61 @@ public class MapGenerator : MonoBehaviour
             position = targetDoor.position - new Vector2(rotDoorPosV3.x,rotDoorPosV3.y); 
 
             //do collision check here
-            GameObject newRoomObject = PlaceRoom(tile.tileObject, position, rotation, tileSet.axisMode, doorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData newRoomData, roomIndex);
+            placedRoom = PlaceRoom(tile.tileObject, position, rotation, tileSet.axisMode, doorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData newRoomData, roomIndex, tileSet.useRB2D);
             newDoors.AddRange(newOpenDoors);
             newRoom = newRoomData;
-            if(newRoomObject.GetComponent<TileData>().colliders2D.Count > 0)
+            TileData td = placedRoom.GetComponent<TileData>();
+            if(td.colliders2D.Count > 0)
             {
                 //do 2d collision checks
+                foreach(Collider2D c in td.colliders2D)
+                {
+                    List<Collider2D> results = new List<Collider2D>();
+                    c.OverlapCollider(new ContactFilter2D(), results);
+                    Debug.Log(results.Count);
+                    if(results.Count > 0)
+                    {
+                        //check if the any of the overlapping colliders are on a diferent object, if so then do not spawn the tile
+                        //this is slow af and could use an optimization pass
+                        foreach(Collider2D c2 in results)
+                        {
+                            if(!td.colliders2D.Contains(c2))
+                            {
+                                float dist = Physics2D.Distance(c,c2).distance;
+                                string o1up = c.name;
+                                Transform t1 = c.transform;
+                                while(t1.parent != null)
+                                {
+                                    o1up += "/" + t1.parent.name;
+                                    t1 = t1.parent;
+                                }
+                                string o2up = c2.name;
+                                Transform t2 = c2.transform;
+                                while(t2.parent != null)
+                                {
+                                    o2up += "/" + t2.parent.name;
+                                    t2 = t2.parent;
+                                }
+                                Debug.Log($"Dist({dist}) with {o1up} and {o2up}");
+                                if(Physics2D.Distance(c,c2).distance < -0.1f)
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                        
+                    }
+                }
+                return true;
             }
             else 
             {
                 //do 3d collision checks
+                return true;
             }
             return true;
 
@@ -246,6 +269,44 @@ public class MapGenerator : MonoBehaviour
         return false;
     }
 
+    private GameObject PlaceRoom(GameObject room, Vector2 position, float rotation, AxisMode axisMode, 
+                                 int ignoreDoorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData placedRoom, int roomIndex, bool useRB2D)
+    {
+        GameObject tileObject = Instantiate(room, transform);
+        switch(axisMode)
+        {
+            case AxisMode.XY:
+                tileObject.transform.position = new Vector3(position.x, position.y, 0);
+                tileObject.transform.eulerAngles = new Vector3(0, 0, rotation);
+                break;
+            case AxisMode.XZ:
+                tileObject.transform.position = new Vector3(position.x, 0, position.y);
+                tileObject.transform.eulerAngles = new Vector3(0, rotation, 0);
+                break;
+        }
+        Physics2D.SyncTransforms();
+        Physics.SyncTransforms();
+        TileData td = tileObject.GetComponent<TileData>();
+        td.gizmoAxisMode = axisMode;
+
+        //add new doors to the openDoors list
+        newOpenDoors = new List<DoorLocation>();
+        for(int i = 0; i < td.doorPositions.Count; i++)
+        {
+            if(i != ignoreDoorIndex)
+            {
+                Vector3 rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(td.doorPositions[i].position.x, td.doorPositions[i].position.y, 0);
+                Vector2 mapSpaceDoorPos = new Vector2(rotDoorPosV3.x,rotDoorPosV3.y) + position;
+                newOpenDoors.Add(new DoorLocation(){ position = mapSpaceDoorPos, rotation = DegWrap(td.doorPositions[i].rotation + rotation), roomIndex = roomIndex });
+            }
+        }
+
+        placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, scale = td.tileSize };
+
+
+
+        return tileObject;
+    }
 
     private int SkewedNum(float[] probabilities)
     {
@@ -259,10 +320,14 @@ public class MapGenerator : MonoBehaviour
         float target = total * Random.value;
 
         int index = 0;
-        float curVal = probabilities[0];
-        while(target > curVal)
+        float curVal = 0;
+        while(index < probabilities.Length - 1)
         {
             curVal += probabilities[index];
+            if(curVal > target)
+            {
+                return index;
+            }
             index++;
         }
         //for just incase floating points cause a weird value
@@ -310,7 +375,7 @@ public class MapGenerator : MonoBehaviour
             }  
         } 
 
-        foreach(DoorLocation d in mgOpenDoors)
+        foreach(DoorLocation d in mgLockedDoors)
         {
             Gizmos.color = Color.magenta;
             switch(tileSetData.axisMode)
