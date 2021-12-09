@@ -71,7 +71,8 @@ class RoomTileMapWindow : EditorWindow
                     {
                         tileObject = newStartObject,
                         tileUsable = true, 
-                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newStartObject)) 
+                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newStartObject)) ,
+                        rarity = 1f
                     });
                 }
 
@@ -97,7 +98,8 @@ class RoomTileMapWindow : EditorWindow
                     {
                         tileObject = newEndObject,
                         tileUsable = true, 
-                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newEndObject)) 
+                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newEndObject)) ,
+                        rarity = 1f
                     });
                 }
 
@@ -123,7 +125,8 @@ class RoomTileMapWindow : EditorWindow
                     {
                         tileObject = newCap,
                         tileUsable = true, 
-                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newCap)) 
+                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newCap)) ,
+                        rarity = 1f
                     });
                 }
 
@@ -151,7 +154,8 @@ class RoomTileMapWindow : EditorWindow
                     {
                         tileObject = newStandardObject,
                         tileUsable = true, 
-                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newStandardObject)) 
+                        previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(newStandardObject)),
+                        rarity = 1f
                     });
                 }
 
@@ -291,7 +295,8 @@ class RoomTileMapWindow : EditorWindow
             {
                 tileObject = tileMap.startTiles[i].tileObject,
                 tileUsable = tileMap.startTiles[i].tileUsable,
-                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.startTiles[i].tileObject))
+                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.startTiles[i].tileObject)),
+                rarity = 1
             };
         }
         for(int i = 0; i < tileMap.endTiles.Count; i++)
@@ -300,7 +305,8 @@ class RoomTileMapWindow : EditorWindow
             {
                 tileObject = tileMap.endTiles[i].tileObject,
                 tileUsable = tileMap.endTiles[i].tileUsable,
-                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.endTiles[i].tileObject))
+                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.endTiles[i].tileObject)),
+                rarity = 1
             };
         }
         for(int i = 0; i < tileMap.tileSet.Count; i++)
@@ -309,7 +315,8 @@ class RoomTileMapWindow : EditorWindow
             {
                 tileObject = tileMap.tileSet[i].tileObject,
                 tileUsable = tileMap.tileSet[i].tileUsable,
-                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.tileSet[i].tileObject))
+                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.tileSet[i].tileObject)),
+                rarity = 1
             };
         }
         for(int i = 0; i < tileMap.tileSet.Count; i++)
@@ -318,7 +325,8 @@ class RoomTileMapWindow : EditorWindow
             {
                 tileObject = tileMap.doorCaps[i].tileObject,
                 tileUsable = tileMap.doorCaps[i].tileUsable,
-                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.doorCaps[i].tileObject))
+                previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.doorCaps[i].tileObject)),
+                rarity = 1
             };
         }
     }

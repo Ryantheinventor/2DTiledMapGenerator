@@ -38,6 +38,7 @@ public class RoomTileMap : ScriptableObject
         public GameObject tileObject;
         public bool tileUsable;
         public Texture2D previewImage;
+        public float rarity;
     }
 
     [Serializable]

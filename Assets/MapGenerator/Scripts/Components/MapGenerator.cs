@@ -121,7 +121,7 @@ public class MapGenerator : MonoBehaviour
         float[] roomProbabilities = new float[tileSet.tileSet.Count];
         for(int i = 0; i < roomProbabilities.Length; i++)
         {
-            roomProbabilities[i] = 1;
+            roomProbabilities[i] = tileSet.tileSet[i].rarity;
         }
         bool roomFits = false;
 
@@ -190,9 +190,22 @@ public class MapGenerator : MonoBehaviour
             DoorLocation doorPosition = new DoorLocation() { position = doors[doorIndex].position, rotation = doors[doorIndex].rotation };
             posProbabilities[doorIndex] = 0; //remove this doorIndex from the running for the next loop through
 
-            //find the rotation by matching the rotation of the cur door to the 180 degree ooposite of target door
-            float targetRot = DegWrap(targetDoor.rotation + 180);
-            rotation = targetRot - DegWrap(doorPosition.rotation);
+            rotation = 0;
+            if(tileSet.allowRotation)
+            {
+                //find the rotation by matching the rotation of the cur door to the 180 degree ooposite of target door
+                float targetRot = DegWrap(targetDoor.rotation + 180);
+                rotation = targetRot - DegWrap(doorPosition.rotation);
+            }
+            else
+            {
+                float targetRot = DegWrap(targetDoor.rotation + 180);
+                if(!(AngleDiff(targetRot, doorPosition.rotation) < 1f))
+                {
+                    continue;
+                }
+            }
+            
 
             //move the position to the correct place
             Vector3 rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(doorPosition.position.x, doorPosition.position.y, 0);
@@ -241,10 +254,6 @@ public class MapGenerator : MonoBehaviour
                                 }
                             }
                         }
-                        
-                    }
-                    else
-                    {
                         
                     }
                 }
@@ -355,28 +364,6 @@ public class MapGenerator : MonoBehaviour
     {
         foreach(DoorLocation d in mgLockedDoors)
         {
-            Gizmos.color = Color.red;
-            switch(tileSetData.axisMode)
-            {
-                case RoomTileMap.AxisMode.XY:
-                {
-                    Vector3 doorPos = transform.position + (Quaternion.Euler(0,0,transform.eulerAngles.z) * new Vector3(d.position.x,d.position.y,0));
-                    Gizmos.DrawCube(doorPos, new Vector3(0.2f,0.2f,0.2f)); 
-                    Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,0,transform.eulerAngles.z+d.rotation) * new Vector3(1,0,0))); 
-                    break;
-                }
-                case RoomTileMap.AxisMode.XZ:
-                {    
-                    Vector3 doorPos = transform.position + (Quaternion.Euler(0,transform.eulerAngles.y,0) * new Vector3(d.position.x,0,d.position.y));
-                    Gizmos.DrawCube(doorPos, new Vector3(0.2f,0.2f,0.2f));  
-                    Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,transform.eulerAngles.y+d.rotation,0) * new Vector3(1,0,0))); 
-                    break;
-                }
-            }  
-        } 
-
-        foreach(DoorLocation d in mgLockedDoors)
-        {
             Gizmos.color = Color.magenta;
             switch(tileSetData.axisMode)
             {
@@ -400,4 +387,10 @@ public class MapGenerator : MonoBehaviour
             }  
         } 
     }
+
+    private float AngleDiff(float angle1, float angle2)
+    {
+        return Mathf.Abs(DegWrap(DegWrap(angle1) - DegWrap(angle2)));
+    }
+
 }
