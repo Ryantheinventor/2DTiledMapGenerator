@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 722279adc464b468fbccf98830141117, type: 3}
+  m_Name: 3DTileMap
+  m_EditorClassIdentifier: 
+  startTiles:
+  - tileObject: {fileID: 8602828665444020399, guid: a08c073c7bdb8c00a9f7e33fd4a6a7b9, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 1
+  endTiles:
+  - tileObject: {fileID: 8602828665444020399, guid: a08c073c7bdb8c00a9f7e33fd4a6a7b9, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 1
+  doorCaps:
+  - tileObject: {fileID: 9210372211334145086, guid: 7bb8a273800af0b3aa11772a8accad6d, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 1
+  tileSet:
+  - tileObject: {fileID: 4454738950437449407, guid: 0107f69b5f67689b6b6433d1eb80f8a7, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 1
+  - tileObject: {fileID: 388010879319533157, guid: 40c9ec743554d4ecf8247deb94fb88db, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 1
+  - tileObject: {fileID: 4298008659555790258, guid: 415dbb1254e2298048207fab46dbe442, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 1
+  axisMode: 1
+  allowRotation: 1
+  maxRoomDistance: 10
+  useRB2D: 1

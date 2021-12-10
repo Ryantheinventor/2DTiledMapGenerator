@@ -50,9 +50,7 @@ class RoomTileMapWindow : EditorWindow
         totalHeight += 41;
         //display the rest of the editor
         if(tileMap)
-        {        
-            
-            
+        {
             #region special tile lists
             //display special rooms like start and ending rooms
             specialRoomsFoldout = EditorGUILayout.Foldout(specialRoomsFoldout, "Special Tile Types");
@@ -143,7 +141,7 @@ class RoomTileMapWindow : EditorWindow
 
             #region normal tile list
             defaultFoldout = EditorGUILayout.Foldout(defaultFoldout, "Other Tiles");
-            totalHeight += 20;
+            totalHeight += 24;
             if(defaultFoldout)
             {   
                 GameObject newStandardObject = (GameObject)EditorGUILayout.ObjectField("Add new tile:", null, typeof(GameObject), false);
@@ -195,6 +193,7 @@ class RoomTileMapWindow : EditorWindow
             totalHeight += 20;
             #endregion
             EditorUtility.SetDirty(tileMap);
+            AssetDatabase.SaveAssetIfDirty(tileMap);
         }
         EditorGUILayout.EndScrollView();
     }
@@ -214,17 +213,25 @@ class RoomTileMapWindow : EditorWindow
                 {
                     rowCount++;
                 }
-                if(PrefabPreview(tileList[i], new Vector2(10 + ((i % prefabDisplayRowCount) * 120),startingHeight + (rowCount-1)*140)))
+                float newRarity = tileList[i].rarity;
+                if(PrefabPreview(tileList[i], new Vector2(10 + ((i % prefabDisplayRowCount) * 120),startingHeight + (rowCount-1)*160), out newRarity))
                 {
                     tilesToRemove.Add(i);
                 }
+                tileList[i] = new RoomTileMap.TileWithState()
+                {
+                    tileObject = tileList[i].tileObject,
+                    tileUsable = tileList[i].tileUsable, 
+                    previewImage = tileList[i].previewImage,
+                    rarity = newRarity  
+                };
             }
             for(int i = tilesToRemove.Count - 1; i >= 0; i--)
             {
                 tileList.RemoveAt(tilesToRemove[i]);
             }
         }
-        return rowCount * 140;
+        return rowCount * 161;
     }
 
     /// <summary>
@@ -263,24 +270,29 @@ class RoomTileMapWindow : EditorWindow
     /// <summary>
     /// returns true if the object should be removed
     /// </summary>
-    bool PrefabPreview(RoomTileMap.TileWithState tile, Vector2 pos)
+    bool PrefabPreview(RoomTileMap.TileWithState tile, Vector2 pos, out float newRarity)
     {
-        GUI.Box(new Rect(pos.x, pos.y, 100, 140), "");
+        GUI.Box(new Rect(pos.x, pos.y, 100, 160), "");
         GUI.Box(new Rect(pos.x, pos.y, 100, 20), tile.tileObject.name);
-        Texture2D tex = tile.previewImage;
-        GUI.Label(new Rect(pos.x+1, pos.y + 21, 98, 98), tile.previewImage);
-        return GUI.Button(new Rect(pos.x+1, pos.y + 120, 98, 18), "Remove");
-    }
 
-    /// <summary>
-    /// returns true if the object should be removed
-    /// </summary>
-    bool PrefabPreviewWActiveState(RoomTileMap.TileWithState tile, Vector2 pos)
-    {
-        GUI.Box(new Rect(pos.x, pos.y, 100, 140), "");
-        GUI.Box(new Rect(pos.x, pos.y, 100, 20), tile.tileObject.name);
-        GUI.Label(new Rect(pos.x+1, pos.y + 21, 98, 98), tile.previewImage);
-        return GUI.Button(new Rect(pos.x+1, pos.y + 120, 98, 18), "Remove");
+        GUI.Label(new Rect(pos.x+10, pos.y + 21, 80, 80), tile.previewImage);
+
+        Color oldGUIColor = GUI.color;
+        GUI.color = Color.gray;
+        GUI.Box(new Rect(pos.x + 2, pos.y + 100, 96, 40), "");
+        GUI.color = oldGUIColor;
+        GUI.Box(new Rect(pos.x + 2, pos.y + 100, 96, 40), "Weight:" + tile.rarity);
+        
+        if(GUI.Button(new Rect(pos.x+7, pos.y + 120, 40, 18), "+"))
+            tile.rarity += 1;
+        if(GUI.Button(new Rect(pos.x+53, pos.y + 120, 40, 18), "-"))
+            tile.rarity -= 1;
+            if(tile.rarity < 0)
+            {
+                tile.rarity = 0;
+            }
+        newRarity = tile.rarity;
+        return GUI.Button(new Rect(pos.x+1, pos.y + 140, 98, 18), "Remove");
     }
 
     /// <summary>
@@ -296,7 +308,7 @@ class RoomTileMapWindow : EditorWindow
                 tileObject = tileMap.startTiles[i].tileObject,
                 tileUsable = tileMap.startTiles[i].tileUsable,
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.startTiles[i].tileObject)),
-                rarity = 1
+                rarity = tileMap.startTiles[i].rarity
             };
         }
         for(int i = 0; i < tileMap.endTiles.Count; i++)
@@ -306,7 +318,7 @@ class RoomTileMapWindow : EditorWindow
                 tileObject = tileMap.endTiles[i].tileObject,
                 tileUsable = tileMap.endTiles[i].tileUsable,
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.endTiles[i].tileObject)),
-                rarity = 1
+                rarity = tileMap.endTiles[i].rarity
             };
         }
         for(int i = 0; i < tileMap.tileSet.Count; i++)
@@ -316,17 +328,17 @@ class RoomTileMapWindow : EditorWindow
                 tileObject = tileMap.tileSet[i].tileObject,
                 tileUsable = tileMap.tileSet[i].tileUsable,
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.tileSet[i].tileObject)),
-                rarity = 1
+                rarity = tileMap.tileSet[i].rarity
             };
         }
-        for(int i = 0; i < tileMap.tileSet.Count; i++)
+        for(int i = 0; i < tileMap.doorCaps.Count; i++)
         {
             tileMap.doorCaps[i] = new RoomTileMap.TileWithState()
             {
                 tileObject = tileMap.doorCaps[i].tileObject,
                 tileUsable = tileMap.doorCaps[i].tileUsable,
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.doorCaps[i].tileObject)),
-                rarity = 1
+                rarity = tileMap.doorCaps[i].rarity
             };
         }
     }

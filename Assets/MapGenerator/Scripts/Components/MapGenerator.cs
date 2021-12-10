@@ -23,6 +23,7 @@ public class MapGenerator : MonoBehaviour
 
     public struct PlacedRoomData
     {
+        public GameObject roomObject;
         public Vector2 position;
         public Vector2 scale;
         public float rotation;
@@ -85,7 +86,11 @@ public class MapGenerator : MonoBehaviour
         PlaceRoom(startingTileData.tileObject, new Vector2(0,0), rotation, tileSet.axisMode, -1, out List<DoorLocation> newRooms, out PlacedRoomData newRoomData, 0, tileSet.useRB2D);
         placedRooms.Add(newRoomData);
         openDoors.AddRange(newRooms);
-        int tempStop = 100;
+        
+        //the amount of tiles placed
+        int tempStop = 200;
+
+
         while(openDoors.Count > 0)
         {
             tempStop -= 1;
@@ -232,22 +237,6 @@ public class MapGenerator : MonoBehaviour
                         {
                             if(!td.colliders2D.Contains(c2))
                             {
-                                float dist = Physics2D.Distance(c,c2).distance;
-                                string o1up = c.name;
-                                Transform t1 = c.transform;
-                                while(t1.parent != null)
-                                {
-                                    o1up += "/" + t1.parent.name;
-                                    t1 = t1.parent;
-                                }
-                                string o2up = c2.name;
-                                Transform t2 = c2.transform;
-                                while(t2.parent != null)
-                                {
-                                    o2up += "/" + t2.parent.name;
-                                    t2 = t2.parent;
-                                }
-                                Debug.Log($"Dist({dist}) with {o1up} and {o2up}");
                                 if(Physics2D.Distance(c,c2).distance < -0.1f)
                                 {
                                     return false;
@@ -262,10 +251,26 @@ public class MapGenerator : MonoBehaviour
             else 
             {
                 //do 3d collision checks
+                foreach(Collider c in td.colliders3D)
+                {
+                    List<(Collider, float)> results = GetCollisions(c, placedRooms);
+                    if(results.Count > 0)
+                    {
+                        foreach((Collider, float) c2 in results)
+                        {
+                            if(!td.colliders3D.Contains(c2.Item1))
+                            {
+                                if(Mathf.Abs(c2.Item2) > 0.1f)
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
                 return true;
             }
             return true;
-
         }
 
         
@@ -290,7 +295,7 @@ public class MapGenerator : MonoBehaviour
                 break;
             case AxisMode.XZ:
                 tileObject.transform.position = new Vector3(position.x, 0, position.y);
-                tileObject.transform.eulerAngles = new Vector3(0, rotation, 0);
+                tileObject.transform.eulerAngles = new Vector3(0, -rotation, 0);
                 break;
         }
         Physics2D.SyncTransforms();
@@ -310,10 +315,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, scale = td.tileSize };
-
-
-
+        placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, scale = td.tileSize, roomObject = tileObject };
         return tileObject;
     }
 
@@ -391,6 +393,27 @@ public class MapGenerator : MonoBehaviour
     private float AngleDiff(float angle1, float angle2)
     {
         return Mathf.Abs(DegWrap(DegWrap(angle1) - DegWrap(angle2)));
+    }
+
+
+
+
+    private List<(Collider, float)> GetCollisions(Collider collider1, List<PlacedRoomData> rooms)
+    {
+        List<(Collider, float)> results = new List<(Collider, float)>();
+        foreach(PlacedRoomData prd in rooms)
+        {
+            foreach(Collider collider2 in prd.roomObject.GetComponentInParent<TileData>().colliders3D)
+            {
+                if(Physics.ComputePenetration(collider1, collider1.gameObject.transform.position, collider1.gameObject.transform.rotation,
+                                           collider2, collider2.gameObject.transform.position, collider2.gameObject.transform.rotation, 
+                                           out Vector3 direction, out float dist))
+                {
+                    results.Add((collider2, dist));
+                }
+            }
+        }
+        return results;
     }
 
 }
