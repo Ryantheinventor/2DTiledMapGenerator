@@ -87,8 +87,8 @@ public class MapGenerator : MonoBehaviour
         placedRooms.Add(newRoomData);
         openDoors.AddRange(newRooms);
         
-        //the amount of tiles placed
-        int tempStop = 200;
+        //the maximum amount of tiles placed
+        int tempStop = 500;
 
 
         while(openDoors.Count > 0)
@@ -196,25 +196,39 @@ public class MapGenerator : MonoBehaviour
             posProbabilities[doorIndex] = 0; //remove this doorIndex from the running for the next loop through
 
             rotation = 0;
+            float doorRot = doorPosition.rotation;
+
+            
+
             if(tileSet.allowRotation)
             {
                 //find the rotation by matching the rotation of the cur door to the 180 degree ooposite of target door
                 float targetRot = DegWrap(targetDoor.rotation + 180);
-                rotation = targetRot - DegWrap(doorPosition.rotation);
+                rotation = targetRot - DegWrap(doorRot);
             }
             else
             {
                 float targetRot = DegWrap(targetDoor.rotation + 180);
-                if(!(AngleDiff(targetRot, doorPosition.rotation) < 1f))
+                if(!(AngleDiff(targetRot, doorRot) < 1f))
                 {
                     continue;
                 }
             }
-            
 
             //move the position to the correct place
-            Vector3 rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(doorPosition.position.x, doorPosition.position.y, 0);
-            position = targetDoor.position - new Vector2(rotDoorPosV3.x,rotDoorPosV3.y); 
+            if(tile.tileObject.GetComponent<TileData>().colliders3D.Count > 0)
+            {
+                Vector3 rotDoorPosV3 = Quaternion.Euler(0,rotation,0) * new Vector3(doorPosition.position.x, 0, doorPosition.position.y);
+                position = targetDoor.position - new Vector2(rotDoorPosV3.x,rotDoorPosV3.z); 
+            }
+            else
+            {
+                Vector3 rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(doorPosition.position.x, doorPosition.position.y, 0);
+                position = targetDoor.position - new Vector2(rotDoorPosV3.x,rotDoorPosV3.y);  
+            }
+            // Vector3 rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(doorPosition.position.x, doorPosition.position.y, 0);
+            // position = targetDoor.position - new Vector2(rotDoorPosV3.x,rotDoorPosV3.y);  
+            
 
             //do collision check here
             placedRoom = PlaceRoom(tile.tileObject, position, rotation, tileSet.axisMode, doorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData newRoomData, roomIndex, tileSet.useRB2D);
@@ -295,7 +309,7 @@ public class MapGenerator : MonoBehaviour
                 break;
             case AxisMode.XZ:
                 tileObject.transform.position = new Vector3(position.x, 0, position.y);
-                tileObject.transform.eulerAngles = new Vector3(0, -rotation, 0);
+                tileObject.transform.eulerAngles = new Vector3(0, rotation, 0);
                 break;
         }
         Physics2D.SyncTransforms();
@@ -309,8 +323,19 @@ public class MapGenerator : MonoBehaviour
         {
             if(i != ignoreDoorIndex)
             {
-                Vector3 rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(td.doorPositions[i].position.x, td.doorPositions[i].position.y, 0);
-                Vector2 mapSpaceDoorPos = new Vector2(rotDoorPosV3.x,rotDoorPosV3.y) + position;
+                Vector3 rotDoorPosV3;
+                Vector3 mapSpaceDoorPos;
+                if(room.GetComponent<TileData>().colliders3D.Count > 0)
+                {
+                    rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(-td.doorPositions[i].position.x, td.doorPositions[i].position.y, 0);
+                    mapSpaceDoorPos = new Vector2(-rotDoorPosV3.x,rotDoorPosV3.y) + position;
+                }
+                else
+                {
+                    rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(td.doorPositions[i].position.x, td.doorPositions[i].position.y, 0);
+                    mapSpaceDoorPos = new Vector2(rotDoorPosV3.x,rotDoorPosV3.y) + position;
+                }
+                
                 newOpenDoors.Add(new DoorLocation(){ position = mapSpaceDoorPos, rotation = DegWrap(td.doorPositions[i].rotation + rotation), roomIndex = roomIndex });
             }
         }

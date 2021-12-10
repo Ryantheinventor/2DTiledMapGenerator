@@ -28,18 +28,30 @@ MonoBehaviour:
     previewImage: {fileID: 0}
     rarity: 1
   tileSet:
+  - tileObject: {fileID: 3790014142983310276, guid: 1f9f5a589af53cf54a76394ba531bdca, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 5
   - tileObject: {fileID: 4454738950437449407, guid: 0107f69b5f67689b6b6433d1eb80f8a7, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 1
+    rarity: 5
   - tileObject: {fileID: 388010879319533157, guid: 40c9ec743554d4ecf8247deb94fb88db, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 1
+    rarity: 6
   - tileObject: {fileID: 4298008659555790258, guid: 415dbb1254e2298048207fab46dbe442, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
+    rarity: 7
+  - tileObject: {fileID: 3957510670806475355, guid: 016f30e3d2ddc0430be5e7ce41432f88, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
     rarity: 1
+  - tileObject: {fileID: 7427314657931860592, guid: 1904f3465ad5ddcab9647ce53679313b, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 2
   axisMode: 1
   allowRotation: 1
   maxRoomDistance: 10
