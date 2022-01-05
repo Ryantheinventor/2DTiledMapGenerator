@@ -88,7 +88,7 @@ public class MapGenerator : MonoBehaviour
         openDoors.AddRange(newRooms);
         
         //the maximum amount of tiles placed
-        int tempStop = 500;
+        int tempStop = tileSet.maxTileCount;
 
 
         while(openDoors.Count > 0)
@@ -115,6 +115,13 @@ public class MapGenerator : MonoBehaviour
         return false;
     }
 
+
+    /// <summary>
+    /// picks a room at random untill a room fits
+    /// </summary>
+    /// <returns>
+    /// true a room was placed
+    /// </returns>
     private bool GenerateRoom(int doorIndex, 
                               List<DoorLocation> openDoors, 
                               List<DoorLocation> unlockedDoors,
@@ -129,8 +136,6 @@ public class MapGenerator : MonoBehaviour
             roomProbabilities[i] = tileSet.tileSet[i].rarity;
         }
         bool roomFits = false;
-
-
         while(!roomFits)
         {
             int roomIndex = SkewedNum(roomProbabilities);
@@ -146,7 +151,7 @@ public class MapGenerator : MonoBehaviour
             {
                 if(placedRoom)
                 {
-                    Destroy(placedRoom);
+                    Destroy(placedRoom); //destroy the room if it was left created and should not be used
                 }
             }
             else
@@ -162,8 +167,12 @@ public class MapGenerator : MonoBehaviour
 
     }
 
-
-    //checks if a room can fit in a specified position and rotation
+    /// <summary>
+    /// Spawns a room and checks the collision to make sure it can fit
+    /// </summary>
+    /// <returns>
+    /// true if the room fits
+    /// </returns>
     private bool CheckRoomFits(DoorLocation targetDoor, TileWithState tile, List<PlacedRoomData> placedRooms, out Vector2 position, 
                                out float rotation, out PlacedRoomData newRoom, out List<DoorLocation> newDoors, RoomTileMap tileSet, int roomIndex, out GameObject placedRoom)
     {
@@ -251,7 +260,7 @@ public class MapGenerator : MonoBehaviour
                         {
                             if(!td.colliders2D.Contains(c2))
                             {
-                                if(Physics2D.Distance(c,c2).distance < -0.1f)
+                                if(Physics2D.Distance(c,c2).distance < -tileSet.maxOverlap)
                                 {
                                     return false;
                                 }
@@ -274,7 +283,7 @@ public class MapGenerator : MonoBehaviour
                         {
                             if(!td.colliders3D.Contains(c2.Item1))
                             {
-                                if(Mathf.Abs(c2.Item2) > 0.1f)
+                                if(Mathf.Abs(c2.Item2) > tileSet.maxOverlap)
                                 {
                                     return false;
                                 }
@@ -287,16 +296,15 @@ public class MapGenerator : MonoBehaviour
             return true;
         }
 
-        
-
-        //Vector3 rotatedDoorPos = Quaternion.Euler(0,0,rotation) * new Vector3(doorPosition.x,doorPosition.y,0);
-
         //return false
         position = new Vector2(0,0);
         rotation = 0;
         return false;
     }
 
+    /// <summary>
+    /// Places a room into the world at a set position and rotation.
+    /// </summary>
     private GameObject PlaceRoom(GameObject room, Vector2 position, float rotation, AxisMode axisMode, 
                                  int ignoreDoorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData placedRoom, int roomIndex, bool useRB2D)
     {
@@ -327,23 +335,26 @@ public class MapGenerator : MonoBehaviour
                 Vector3 mapSpaceDoorPos;
                 if(room.GetComponent<TileData>().colliders3D.Count > 0)
                 {
+                    //door pos for xz
                     rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(-td.doorPositions[i].position.x, td.doorPositions[i].position.y, 0);
                     mapSpaceDoorPos = new Vector2(-rotDoorPosV3.x,rotDoorPosV3.y) + position;
                 }
                 else
                 {
+                    //door pos for xy
                     rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(td.doorPositions[i].position.x, td.doorPositions[i].position.y, 0);
                     mapSpaceDoorPos = new Vector2(rotDoorPosV3.x,rotDoorPosV3.y) + position;
                 }
-                
                 newOpenDoors.Add(new DoorLocation(){ position = mapSpaceDoorPos, rotation = DegWrap(td.doorPositions[i].rotation + rotation), roomIndex = roomIndex });
             }
         }
-
         placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, scale = td.tileSize, roomObject = tileObject };
         return tileObject;
     }
 
+    /// <summary>
+    /// Randomly picks an index based off the weights in the indexes
+    /// </summary>
     private int SkewedNum(float[] probabilities)
     {
         float total = 0;
@@ -374,6 +385,9 @@ public class MapGenerator : MonoBehaviour
         return index;
     }
 
+    /// <summary>
+    /// Wraps a degree value to be inbetween 0(inclusive) and 360(exclusive)
+    /// </summary>
     private float DegWrap(float original)
     {
         while(original >= 360)
@@ -415,14 +429,20 @@ public class MapGenerator : MonoBehaviour
         } 
     }
 
+    /// <summary>
+    /// Calculates the diference in angle of two angles
+    /// </summary>
     private float AngleDiff(float angle1, float angle2)
     {
         return Mathf.Abs(DegWrap(DegWrap(angle1) - DegWrap(angle2)));
     }
 
-
-
-
+    /// <summary>
+    /// Finds all colliders currently contacting collider1
+    /// </summary>
+    /// <returns>
+    /// a List<(Collider, float)> that stores the colliders that intersect and the distance of a ComputePenetration calculation
+    /// </returns>
     private List<(Collider, float)> GetCollisions(Collider collider1, List<PlacedRoomData> rooms)
     {
         List<(Collider, float)> results = new List<(Collider, float)>();

@@ -32,6 +32,12 @@ public class RoomTileMap : ScriptableObject
     
     public bool useRB2D = true;
 
+    public float maxOverlap = 0.1f;
+
+    public int maxTileCount = 50;
+
+    public int minTileCount = 20;
+
     [Serializable]
     public struct TileWithState
     {

@@ -56,3 +56,6 @@ MonoBehaviour:
   allowRotation: 1
   maxRoomDistance: 10
   useRB2D: 1
+  maxOverlap: 0.1
+  maxTileCount: 500
+  minTileCount: 20

@@ -167,6 +167,7 @@ class RoomTileMapWindow : EditorWindow
             #endregion
 
             #region other settings
+            GUILayout.Label("Other Settings:", EditorStyles.boldLabel);
             string modeButtonText = "Current Mode: ";
             switch(tileMap.axisMode)
             {
@@ -190,12 +191,33 @@ class RoomTileMapWindow : EditorWindow
                 }
             }
             tileMap.allowRotation = EditorGUILayout.Toggle("Allow Rotation", tileMap.allowRotation);
-            totalHeight += 20;
+            tileMap.maxOverlap = EditorGUILayout.FloatField("Maximum Collision Overlap:", tileMap.maxOverlap);
+            tileMap.maxTileCount = EditorGUILayout.IntField("Maximum Tiles Per Map:", tileMap.maxTileCount);
+            tileMap.minTileCount = EditorGUILayout.IntField("Minumum Tiles Per Map:", tileMap.minTileCount);
+            totalHeight += 40;
             #endregion
             EditorUtility.SetDirty(tileMap);
-            AssetDatabase.SaveAssetIfDirty(tileMap);
+            
         }
         EditorGUILayout.EndScrollView();
+    }
+
+    void OnDestroy() 
+    {
+        if(tileMap)
+        {
+            AssetDatabase.SaveAssetIfDirty(tileMap);
+            Debug.Log("Saving asset");
+        }
+    }
+
+    void OnLostFocus() 
+    {
+        if(tileMap)
+        {
+            AssetDatabase.SaveAssetIfDirty(tileMap);
+            Debug.Log("Saving asset");
+        }
     }
 
     /// <summary>
