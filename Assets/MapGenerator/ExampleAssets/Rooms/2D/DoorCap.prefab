@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6605219003050078920}
   - component: {fileID: 6144757166620545313}
+  - component: {fileID: 4874053469714559392}
   m_Layer: 0
   m_Name: DoorCap
   m_TagString: Untagged
@@ -45,6 +46,24 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
+--- !u!114 &4874053469714559392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 821166952359583552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7ff40ea54aadebd4a0b556aa1b0ca63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doorPositions: []
+  tileSize: {x: 5, y: 5}
+  doorsTaken: 
+  gizmoAxisMode: 0
+  colliders3D: []
+  colliders2D: []
 --- !u!1 &4272556961468333496
 GameObject:
   m_ObjectHideFlags: 0
@@ -202,7 +221,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0.0050504804, y: 0.0050504804, z: 0}
   m_MaxChunkCount: 16

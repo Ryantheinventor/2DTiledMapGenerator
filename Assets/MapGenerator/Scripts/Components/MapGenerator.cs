@@ -89,13 +89,17 @@ public class MapGenerator : MonoBehaviour
         
         //the maximum amount of tiles placed
         int tempStop = tileSet.maxTileCount;
-
+        bool endingMade = false;
 
         while(openDoors.Count > 0)
         {
             tempStop -= 1;
-            if(GenerateRoom(0, openDoors, unlockedDoors, lockedDoors, placedRooms, tileSet))
+            if(GenerateRoom(0, openDoors, unlockedDoors, lockedDoors, placedRooms, tileSet, tileSet.minTileCount < placedRooms.Count && !endingMade, out bool usedExit))
             {
+                if(usedExit)
+                {
+                    endingMade = true;
+                }
                 unlockedDoors.Add(openDoors[0]);
                 openDoors.RemoveAt(0);
             }
@@ -109,9 +113,33 @@ public class MapGenerator : MonoBehaviour
                 break;
             }
         }
+
+        if(placedRooms.Count < tileSet.minTileCount)
+        {
+            //TODO: if we get here we should clear and retry a few times first
+            return false;
+        }
+
         //add all ending doors to the locked door catagory
         lockedDoors.AddRange(openDoors);
         openDoors = new List<DoorLocation>();
+
+        float[] doorProbabilities = new float[tileSet.doorCaps.Count];
+        for(int i = 0; i < doorProbabilities.Length; i++)
+        {
+            doorProbabilities[i] = tileSet.doorCaps[i].rarity;
+        }
+        //add locked doors to doorways that do not lead to anything
+        foreach(DoorLocation dl in lockedDoors)
+        {
+            int doorIndex = SkewedNum(doorProbabilities);
+            GameObject newDoorFab = tileSet.doorCaps[doorIndex].tileObject;
+            PlaceRoom(newDoorFab, dl.position, dl.rotation, tileSet.axisMode, 0, out List<DoorLocation> newOpenDoors, out PlacedRoomData newDoor, 0, tileSet.useRB2D);
+        }
+
+
+
+
         return false;
     }
 
@@ -127,13 +155,23 @@ public class MapGenerator : MonoBehaviour
                               List<DoorLocation> unlockedDoors,
                               List<DoorLocation> lockedDoors, 
                               List<PlacedRoomData> placedRooms, 
-                              RoomTileMap tileSet)
+                              RoomTileMap tileSet, 
+                              bool allowEndingRooms, out bool usedEndingRoom)
     {
+        usedEndingRoom = false;
         Vector2 targetDoorPos = openDoors[doorIndex].position;
-        float[] roomProbabilities = new float[tileSet.tileSet.Count];
+        //add endTiles to probability if allowEndingRooms is true
+        float[] roomProbabilities = new float[allowEndingRooms ? tileSet.tileSet.Count + tileSet.endTiles.Count : tileSet.tileSet.Count];
         for(int i = 0; i < roomProbabilities.Length; i++)
         {
-            roomProbabilities[i] = tileSet.tileSet[i].rarity;
+            if(i >= tileSet.tileSet.Count)
+            {
+                roomProbabilities[i] = tileSet.endTiles[i-tileSet.tileSet.Count].rarity;
+            }
+            else
+            {
+                roomProbabilities[i] = tileSet.tileSet[i].rarity;
+            }
         }
         bool roomFits = false;
         while(!roomFits)
@@ -144,7 +182,11 @@ public class MapGenerator : MonoBehaviour
                 return false;
             }
             roomProbabilities[roomIndex] = 0;
-            roomFits = CheckRoomFits(openDoors[doorIndex], tileSet.tileSet[roomIndex], placedRooms, out Vector2 position, 
+            
+            //if the tile is over the tileSet size then it is in endTiles
+            TileWithState tws = roomIndex < tileSet.tileSet.Count ? tileSet.tileSet[roomIndex] : tileSet.endTiles[roomIndex-tileSet.tileSet.Count];
+
+            roomFits = CheckRoomFits(openDoors[doorIndex], tws, placedRooms, out Vector2 position, 
                           out float rotation, out PlacedRoomData newRoom, out List<DoorLocation> newDoors, 
                           tileSet, openDoors[doorIndex].roomIndex, out GameObject placedRoom);
             if(!roomFits)
@@ -158,6 +200,7 @@ public class MapGenerator : MonoBehaviour
             {
                 placedRooms.Add(newRoom);
                 openDoors.AddRange(newDoors);
+                usedEndingRoom = roomIndex >= tileSet.tileSet.Count;
             }
             
 
