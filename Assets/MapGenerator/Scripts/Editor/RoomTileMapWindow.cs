@@ -286,7 +286,18 @@ class RoomTileMapWindow : EditorWindow
         var editor = UnityEditor.Editor.CreateEditor(prefab);
         Texture2D tex = editor.RenderStaticPreview(path, null, 200, 200);
         EditorWindow.DestroyImmediate(editor);
-        return tex;
+
+        Color[] pixels = tex.GetPixels(0);
+        Color testAgainst = pixels[0];
+        foreach(Color p in pixels)
+        {
+            if(p != testAgainst)
+            {
+                return tex;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -297,7 +308,17 @@ class RoomTileMapWindow : EditorWindow
         GUI.Box(new Rect(pos.x, pos.y, 100, 160), "");
         GUI.Box(new Rect(pos.x, pos.y, 100, 20), tile.tileObject.name);
 
-        GUI.Label(new Rect(pos.x+10, pos.y + 21, 80, 80), tile.previewImage);
+        if(tile.previewImage)
+        {
+            GUI.Label(new Rect(pos.x+10, pos.y + 21, 80, 80), tile.previewImage);
+        }
+        else
+        {
+            GUIStyle style = GUI.skin.GetStyle("Label");
+            style.alignment = TextAnchor.MiddleCenter;
+            GUI.Label(new Rect(pos.x+10, pos.y + 21, 80, 80), "Failed to\ngenerate\npreview.", style);
+        }
+
 
         Color oldGUIColor = GUI.color;
         GUI.color = Color.gray;
