@@ -36,10 +36,6 @@ MonoBehaviour:
     tileUsable: 1
     previewImage: {fileID: 0}
     rarity: 3
-  - tileObject: {fileID: 7993020141953415406, guid: cef356b1cc3befc9595db3f61e9e0cd3, type: 3}
-    tileUsable: 1
-    previewImage: {fileID: 0}
-    rarity: 2
   - tileObject: {fileID: 6394094700702064275, guid: 1337e141291aee9bca494b4bc5136712, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}

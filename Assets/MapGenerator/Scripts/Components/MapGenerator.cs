@@ -120,16 +120,46 @@ public class MapGenerator : MonoBehaviour
             return false;
         }
 
-        //add all ending doors to the locked door catagory
-        lockedDoors.AddRange(openDoors);
-        openDoors = new List<DoorLocation>();
+        openDoors.AddRange(lockedDoors);
+        lockedDoors.Clear();
 
+        while(openDoors.Count > 1)
+        {
+            bool foundOne = false;
+            for(int i = 1; i < openDoors.Count; i++)
+            {
+                if(Vector2.Distance(openDoors[0].position, openDoors[i].position) < 0.1f)
+                {
+                    if(AngleDiff(openDoors[0].rotation, openDoors[i].rotation) > 0.1f)
+                    {
+                        unlockedDoors.Add(openDoors[0]);
+                        openDoors.RemoveAt(i);
+                        openDoors.RemoveAt(0);
+                        foundOne = true;
+                        break;
+                    }
+                }
+            }
+            if(!foundOne)
+            {
+                lockedDoors.Add(openDoors[0]);
+                openDoors.RemoveAt(0);
+            }
+        }
+
+
+        //add any remaining doors to the locked door catagory
+        lockedDoors.AddRange(openDoors);
+        openDoors.Clear();
+
+
+
+        //add locked doors to doorways that do not lead to anything
         float[] doorProbabilities = new float[tileSet.doorCaps.Count];
         for(int i = 0; i < doorProbabilities.Length; i++)
         {
             doorProbabilities[i] = tileSet.doorCaps[i].rarity;
         }
-        //add locked doors to doorways that do not lead to anything
         foreach(DoorLocation dl in lockedDoors)
         {
             int doorIndex = SkewedNum(doorProbabilities);
@@ -294,7 +324,6 @@ public class MapGenerator : MonoBehaviour
                 {
                     List<Collider2D> results = new List<Collider2D>();
                     c.OverlapCollider(new ContactFilter2D(), results);
-                    Debug.Log(results.Count);
                     if(results.Count > 0)
                     {
                         //check if the any of the overlapping colliders are on a diferent object, if so then do not spawn the tile

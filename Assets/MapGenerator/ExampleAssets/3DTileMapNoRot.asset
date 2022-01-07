@@ -41,5 +41,5 @@ MonoBehaviour:
   maxRoomDistance: 10
   useRB2D: 1
   maxOverlap: 0.1
-  maxTileCount: 300
-  minTileCount: 80
+  maxTileCount: 100
+  minTileCount: 20
