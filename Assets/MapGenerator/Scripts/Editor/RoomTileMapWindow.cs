@@ -326,9 +326,9 @@ class RoomTileMapWindow : EditorWindow
         GUI.color = oldGUIColor;
         GUI.Box(new Rect(pos.x + 2, pos.y + 100, 96, 40), "Weight:" + tile.rarity);
         
-        if(GUI.Button(new Rect(pos.x+7, pos.y + 120, 40, 18), "+"))
+        if(GUI.Button(new Rect(pos.x+53, pos.y + 120, 40, 18), "+"))
             tile.rarity += 1;
-        if(GUI.Button(new Rect(pos.x+53, pos.y + 120, 40, 18), "-"))
+        if(GUI.Button(new Rect(pos.x+7, pos.y + 120, 40, 18), "-"))
             tile.rarity -= 1;
             if(tile.rarity < 0)
             {

@@ -78,51 +78,68 @@ public class MapGenerator : MonoBehaviour
             return false;
         }
         #endregion
-
-        //place starting tile
-        TileWithState startingTileData = tileSet.startTiles[Random.Range(0,tileSet.startTiles.Count)];
-        float rotation = tileSet.allowRotation ? 90 * Random.Range(0,4) : 0;
-        
-        PlaceRoom(startingTileData.tileObject, new Vector2(0,0), rotation, tileSet.axisMode, -1, out List<DoorLocation> newRooms, out PlacedRoomData newRoomData, 0, tileSet.useRB2D);
-        placedRooms.Add(newRoomData);
-        openDoors.AddRange(newRooms);
-        
-        //the maximum amount of tiles placed
-        int tempStop = tileSet.maxTileCount;
+        int maxAttempts = 5;
         bool endingMade = false;
-
-        while(openDoors.Count > 0)
+        while((!endingMade || placedRooms.Count < tileSet.minTileCount) && maxAttempts > 0)
         {
-            tempStop -= 1;
-            if(GenerateRoom(0, openDoors, unlockedDoors, lockedDoors, placedRooms, tileSet, tileSet.minTileCount < placedRooms.Count && !endingMade, out bool usedExit))
+            maxAttempts--;
+
+            //reset data for just incase this is not the first time around
+            foreach(PlacedRoomData prd in placedRooms)
             {
-                if(usedExit)
+                Destroy(prd.roomObject);
+            }
+            endingMade = false;
+            openDoors.Clear();
+            unlockedDoors.Clear();
+            lockedDoors.Clear();
+            placedRooms.Clear();
+            //place starting tile
+            TileWithState startingTileData = tileSet.startTiles[Random.Range(0,tileSet.startTiles.Count)];
+            float rotation = tileSet.allowRotation ? 90 * Random.Range(0,4) : 0;
+            
+            PlaceRoom(startingTileData.tileObject, new Vector2(0,0), rotation, tileSet.axisMode, -1, out List<DoorLocation> newRooms, out PlacedRoomData newRoomData, 0, tileSet.useRB2D);
+            placedRooms.Add(newRoomData);
+            openDoors.AddRange(newRooms);
+            
+            //the maximum amount of tiles placed
+            int tempStop = tileSet.maxTileCount;
+            
+            while(openDoors.Count > 0)
+            {
+                
+                if(GenerateRoom(0, openDoors, unlockedDoors, lockedDoors, placedRooms, tileSet, tileSet.minTileCount < placedRooms.Count && !endingMade, out bool usedExit))
                 {
-                    endingMade = true;
+                    if(usedExit)
+                    {
+                        endingMade = true;
+                    }
+                    unlockedDoors.Add(openDoors[0]);
+                    openDoors.RemoveAt(0);
+                    tempStop -= 1;
                 }
-                unlockedDoors.Add(openDoors[0]);
-                openDoors.RemoveAt(0);
-            }
-            else
-            {
-                lockedDoors.Add(openDoors[0]);
-                openDoors.RemoveAt(0);
-            }
-            if(tempStop <= 0)
-            {
-                break;
+                else
+                {
+                    lockedDoors.Add(openDoors[0]);
+                    openDoors.RemoveAt(0);
+                }
+                if(tempStop <= 0)
+                {
+                    break;
+                }
             }
         }
-
-        if(placedRooms.Count < tileSet.minTileCount)
+        //if we still dont have enough rooms we give up
+        if(placedRooms.Count < tileSet.minTileCount || !endingMade)
         {
-            //TODO: if we get here we should clear and retry a few times first
+            Debug.LogError("Something prevented a map from being fully generated. This can be caused by not enough tile varients, poorly weighted tiles, or a pre existing object is blocking collision.");
             return false;
         }
 
         openDoors.AddRange(lockedDoors);
         lockedDoors.Clear();
 
+        //combine doors that ere in the same place
         while(openDoors.Count > 1)
         {
             bool foundOne = false;
@@ -365,7 +382,6 @@ public class MapGenerator : MonoBehaviour
                 }
                 return true;
             }
-            return true;
         }
 
         //return false
