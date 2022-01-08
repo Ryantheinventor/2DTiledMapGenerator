@@ -17,25 +17,30 @@ MonoBehaviour:
     tileUsable: 1
     previewImage: {fileID: 0}
     rarity: 1
+    requiredUse: 0
   endTiles:
   - tileObject: {fileID: 5367210700797997023, guid: 685d47dea2671f31c832562fa5895ea1, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
     rarity: 10
+    requiredUse: 0
   doorCaps:
   - tileObject: {fileID: 9210372211334145086, guid: 7bb8a273800af0b3aa11772a8accad6d, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
     rarity: 1
+    requiredUse: 0
   tileSet:
   - tileObject: {fileID: 4298008659555790258, guid: 415dbb1254e2298048207fab46dbe442, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
     rarity: 1
+    requiredUse: 0
   - tileObject: {fileID: 3957510670806475355, guid: 016f30e3d2ddc0430be5e7ce41432f88, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
     rarity: 1
+    requiredUse: 0
   axisMode: 1
   allowRotation: 0
   maxRoomDistance: 10

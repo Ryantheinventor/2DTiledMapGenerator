@@ -8,11 +8,10 @@ using System;
 class RoomTileMapWindow : EditorWindow 
 {
 
-    private int prefabDisplayRowCount = 5;
+    private int prefabDisplayRowCount = 3;
 
     public RoomTileMap tileMap = null; 
     private RoomTileMap lastMap = null;
-    private GameObject testObject = null;
     private bool specialRoomsFoldout = true;
     private bool defaultFoldout = true;
     private int totalHeight = 0;
@@ -75,7 +74,7 @@ class RoomTileMapWindow : EditorWindow
                 }
 
                 //draw every starting tile onto the window
-                int listDisplaySize = DisplayTileList(ref tileMap.startTiles, totalHeight);
+                int listDisplaySize = DisplayTileList(ref tileMap.startTiles, totalHeight, false);
                 EditorGUILayout.Space(listDisplaySize);
                 totalHeight += listDisplaySize;
                 
@@ -102,7 +101,7 @@ class RoomTileMapWindow : EditorWindow
                 }
 
                 //draw every ending tile onto the window
-                listDisplaySize = DisplayTileList(ref tileMap.endTiles, totalHeight);
+                listDisplaySize = DisplayTileList(ref tileMap.endTiles, totalHeight, false);
                 EditorGUILayout.Space(listDisplaySize);
                 totalHeight += listDisplaySize;
                 
@@ -129,7 +128,7 @@ class RoomTileMapWindow : EditorWindow
                 }
 
                 //draw every ending tile onto the window
-                listDisplaySize = DisplayTileList(ref tileMap.doorCaps, totalHeight);
+                listDisplaySize = DisplayTileList(ref tileMap.doorCaps, totalHeight, false);
                 EditorGUILayout.Space(listDisplaySize);
                 totalHeight += listDisplaySize;
                 
@@ -158,7 +157,7 @@ class RoomTileMapWindow : EditorWindow
                 }
 
                 //draw every tile onto the window
-                int displayListHeight = DisplayTileList(ref tileMap.tileSet, totalHeight);
+                int displayListHeight = DisplayTileList(ref tileMap.tileSet, totalHeight, true);
                 EditorGUILayout.Space(displayListHeight);
                 totalHeight += displayListHeight;
             }
@@ -171,10 +170,10 @@ class RoomTileMapWindow : EditorWindow
             string modeButtonText = "Current Mode: ";
             switch(tileMap.axisMode)
             {
-                case RoomTileMap.AxisMode.XY:
+                case RoomTileMap.AxisMode.IS2D:
                     modeButtonText += "X/Y (map spreads across the X and Y axis, good for 2D games)";
                     break;
-                case RoomTileMap.AxisMode.XZ:
+                case RoomTileMap.AxisMode.IS3D:
                     modeButtonText += "X/Z (map spreads across the X and Z axis, good for 3D games)";
                     break;
             }
@@ -182,18 +181,18 @@ class RoomTileMapWindow : EditorWindow
             {
                 switch(tileMap.axisMode)
                 {
-                    case RoomTileMap.AxisMode.XY:
-                        tileMap.axisMode = RoomTileMap.AxisMode.XZ;
+                    case RoomTileMap.AxisMode.IS2D:
+                        tileMap.axisMode = RoomTileMap.AxisMode.IS3D;
                         break;
-                    case RoomTileMap.AxisMode.XZ:
-                        tileMap.axisMode = RoomTileMap.AxisMode.XY;
+                    case RoomTileMap.AxisMode.IS3D:
+                        tileMap.axisMode = RoomTileMap.AxisMode.IS2D;
                         break;
                 }
             }
             tileMap.allowRotation = EditorGUILayout.Toggle("Allow Rotation", tileMap.allowRotation);
             tileMap.maxOverlap = EditorGUILayout.FloatField("Maximum Collision Overlap:", tileMap.maxOverlap);
-            tileMap.maxTileCount = EditorGUILayout.IntField("Maximum Tiles Per Map:", tileMap.maxTileCount);
             tileMap.minTileCount = EditorGUILayout.IntField("Minumum Tiles Per Map:", tileMap.minTileCount);
+            tileMap.maxTileCount = EditorGUILayout.IntField("Maximum Tiles Per Map:", tileMap.maxTileCount);
             totalHeight += 40;
             #endregion
             EditorUtility.SetDirty(tileMap);
@@ -211,6 +210,14 @@ class RoomTileMapWindow : EditorWindow
         }
     }
 
+    void OnFocus() 
+    {
+        if(tileMap)
+        {
+            ReRenderPrfabPreviews();
+        }
+    }
+
     void OnLostFocus() 
     {
         if(tileMap)
@@ -223,7 +230,7 @@ class RoomTileMapWindow : EditorWindow
     /// <summary>
     /// returns height of just the displayed list
     /// </summary>
-    int DisplayTileList(ref List<RoomTileMap.TileWithState> tileList, int startingHeight)
+    int DisplayTileList(ref List<RoomTileMap.TileWithState> tileList, int startingHeight, bool canRequire)
     {
         int rowCount = 0;
         List<int> tilesToRemove = new List<int>();
@@ -234,9 +241,11 @@ class RoomTileMapWindow : EditorWindow
                 if(i % prefabDisplayRowCount == 0)
                 {
                     rowCount++;
+
                 }
                 float newRarity = tileList[i].rarity;
-                if(PrefabPreview(tileList[i], new Vector2(10 + ((i % prefabDisplayRowCount) * 120),startingHeight + (rowCount-1)*160), out newRarity))
+                int newRequired = tileList[i].requiredUse;
+                if(PrefabPreview(tileList[i], new Vector2(10 + ((i % prefabDisplayRowCount) * 215),startingHeight + (rowCount-1)*120), out newRarity, out newRequired, canRequire))
                 {
                     tilesToRemove.Add(i);
                 }
@@ -245,7 +254,8 @@ class RoomTileMapWindow : EditorWindow
                     tileObject = tileList[i].tileObject,
                     tileUsable = tileList[i].tileUsable, 
                     previewImage = tileList[i].previewImage,
-                    rarity = newRarity  
+                    rarity = newRarity,
+                    requiredUse = newRequired
                 };
             }
             for(int i = tilesToRemove.Count - 1; i >= 0; i--)
@@ -253,7 +263,7 @@ class RoomTileMapWindow : EditorWindow
                 tileList.RemoveAt(tilesToRemove[i]);
             }
         }
-        return rowCount * 161;
+        return rowCount * 120;
     }
 
     /// <summary>
@@ -303,39 +313,64 @@ class RoomTileMapWindow : EditorWindow
     /// <summary>
     /// returns true if the object should be removed
     /// </summary>
-    bool PrefabPreview(RoomTileMap.TileWithState tile, Vector2 pos, out float newRarity)
+    bool PrefabPreview(RoomTileMap.TileWithState tile, Vector2 pos, out float newRarity, out int newRequired, bool canRequire)
     {
-        GUI.Box(new Rect(pos.x, pos.y, 100, 160), "");
+        GUI.Box(new Rect(pos.x, pos.y, 200, 110), "");
         GUI.Box(new Rect(pos.x, pos.y, 100, 20), tile.tileObject.name);
 
         if(tile.previewImage)
         {
-            GUI.Label(new Rect(pos.x+10, pos.y + 21, 80, 80), tile.previewImage);
+            GUI.Label(new Rect(pos.x+5, pos.y + 19, 90, 90), tile.previewImage);
         }
         else
         {
             GUIStyle style = GUI.skin.GetStyle("Label");
             style.alignment = TextAnchor.MiddleCenter;
-            GUI.Label(new Rect(pos.x+10, pos.y + 21, 80, 80), "Failed to\ngenerate\npreview.", style);
+            GUI.Label(new Rect(pos.x+5, pos.y + 19, 90, 90), "Failed to\ngenerate\npreview.", style);
         }
 
 
         Color oldGUIColor = GUI.color;
         GUI.color = Color.gray;
-        GUI.Box(new Rect(pos.x + 2, pos.y + 100, 96, 40), "");
+        GUI.Box(new Rect(pos.x + 102, pos.y + 24, 96, 40), "");
         GUI.color = oldGUIColor;
-        GUI.Box(new Rect(pos.x + 2, pos.y + 100, 96, 40), "Weight:" + tile.rarity);
+        GUI.Box(new Rect(pos.x + 102, pos.y + 24, 96, 40), "Weight: " + tile.rarity);
         
-        if(GUI.Button(new Rect(pos.x+53, pos.y + 120, 40, 18), "+"))
+        if(GUI.Button(new Rect(pos.x+153, pos.y + 44, 40, 18), "+"))
             tile.rarity += 1;
-        if(GUI.Button(new Rect(pos.x+7, pos.y + 120, 40, 18), "-"))
+        if(GUI.Button(new Rect(pos.x+107, pos.y + 44, 40, 18), "-"))
             tile.rarity -= 1;
-            if(tile.rarity < 0)
-            {
-                tile.rarity = 0;
-            }
+        if(tile.rarity < 0)
+        {
+            tile.rarity = 0;
+        }
         newRarity = tile.rarity;
-        return GUI.Button(new Rect(pos.x+1, pos.y + 140, 98, 18), "Remove");
+
+        if(canRequire)
+        {
+            GUI.color = Color.gray;
+            GUI.Box(new Rect(pos.x + 102, pos.y + 67, 96, 40), "");
+            GUI.color = oldGUIColor;
+            GUI.Box(new Rect(pos.x + 102, pos.y + 67, 96, 40), tile.requiredUse > 0 ? "Required: " + tile.requiredUse : "Not Required");
+            
+            if(GUI.Button(new Rect(pos.x+153, pos.y + 87, 40, 18), "+"))
+                tile.requiredUse += 1;
+            if(GUI.Button(new Rect(pos.x+107, pos.y + 87, 40, 18), "-"))
+                tile.requiredUse -= 1;
+            if(tile.requiredUse < 0)
+            {
+                tile.requiredUse = 0;
+            }
+            newRequired = tile.requiredUse;
+        }
+        else
+        {
+            newRequired = 0;
+        }
+        
+
+
+        return GUI.Button(new Rect(pos.x+101, pos.y + 2, 98, 18), "Remove");
     }
 
     /// <summary>
@@ -351,7 +386,8 @@ class RoomTileMapWindow : EditorWindow
                 tileObject = tileMap.startTiles[i].tileObject,
                 tileUsable = tileMap.startTiles[i].tileUsable,
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.startTiles[i].tileObject)),
-                rarity = tileMap.startTiles[i].rarity
+                rarity = tileMap.startTiles[i].rarity,
+                requiredUse = tileMap.startTiles[i].requiredUse
             };
         }
         for(int i = 0; i < tileMap.endTiles.Count; i++)
@@ -361,7 +397,8 @@ class RoomTileMapWindow : EditorWindow
                 tileObject = tileMap.endTiles[i].tileObject,
                 tileUsable = tileMap.endTiles[i].tileUsable,
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.endTiles[i].tileObject)),
-                rarity = tileMap.endTiles[i].rarity
+                rarity = tileMap.endTiles[i].rarity,
+                requiredUse = tileMap.endTiles[i].requiredUse
             };
         }
         for(int i = 0; i < tileMap.tileSet.Count; i++)
@@ -371,7 +408,8 @@ class RoomTileMapWindow : EditorWindow
                 tileObject = tileMap.tileSet[i].tileObject,
                 tileUsable = tileMap.tileSet[i].tileUsable,
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.tileSet[i].tileObject)),
-                rarity = tileMap.tileSet[i].rarity
+                rarity = tileMap.tileSet[i].rarity,
+                requiredUse = tileMap.tileSet[i].requiredUse
             };
         }
         for(int i = 0; i < tileMap.doorCaps.Count; i++)
@@ -381,7 +419,8 @@ class RoomTileMapWindow : EditorWindow
                 tileObject = tileMap.doorCaps[i].tileObject,
                 tileUsable = tileMap.doorCaps[i].tileUsable,
                 previewImage = GetPrefabPreview(AssetDatabase.GetAssetPath(tileMap.doorCaps[i].tileObject)),
-                rarity = tileMap.doorCaps[i].rarity
+                rarity = tileMap.doorCaps[i].rarity,
+                requiredUse = tileMap.doorCaps[i].requiredUse
             };
         }
     }

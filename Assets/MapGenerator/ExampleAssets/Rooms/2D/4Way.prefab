@@ -961,11 +961,11 @@ MonoBehaviour:
   - position: {x: 5, y: 0}
     rotation: 0
   - position: {x: -5, y: 0}
-    rotation: -180
+    rotation: 180
   - position: {x: 0, y: 5}
     rotation: 90
   - position: {x: 0, y: -5}
-    rotation: -90
+    rotation: 270
   tileSize: {x: 10, y: 4}
   doorsTaken: 
   gizmoAxisMode: 0

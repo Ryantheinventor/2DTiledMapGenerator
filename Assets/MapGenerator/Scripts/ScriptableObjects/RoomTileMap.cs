@@ -21,7 +21,7 @@ public class RoomTileMap : ScriptableObject
     public List<TileWithState> tileSet = new List<TileWithState>();
 
     
-    public AxisMode axisMode = AxisMode.XY;
+    public AxisMode axisMode = AxisMode.IS2D;
 
     
     public bool allowRotation = false;
@@ -45,13 +45,14 @@ public class RoomTileMap : ScriptableObject
         public bool tileUsable;
         public Texture2D previewImage;
         public float rarity;
+        public int requiredUse;
     }
 
     [Serializable]
     public enum AxisMode
     {
-        XY,//2D
-        XZ//3D
+        IS2D,//2D
+        IS3D//3D
     }
 
 

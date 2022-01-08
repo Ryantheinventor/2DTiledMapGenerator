@@ -55,7 +55,8 @@ public class MapGenerator : MonoBehaviour
         unlockedDoors = new List<DoorLocation>(); //list of all doors that have a tile on both sides
         lockedDoors = new List<DoorLocation>(); //list of all doors that lead nowhere
         placedRooms = new List<PlacedRoomData>(); //list of all placed rooms
-
+        int[] roomUsedCounts = new int[tileSet.tileSet.Count];
+        
         #region check if data is useable
         bool safeToStart = true;
         if(tileSet.startTiles.Count == 0)
@@ -80,7 +81,7 @@ public class MapGenerator : MonoBehaviour
         #endregion
         int maxAttempts = 5;
         bool endingMade = false;
-        while((!endingMade || placedRooms.Count < tileSet.minTileCount) && maxAttempts > 0)
+        while(((!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)) || placedRooms.Count < tileSet.minTileCount) && maxAttempts > 0)
         {
             maxAttempts--;
 
@@ -94,6 +95,9 @@ public class MapGenerator : MonoBehaviour
             unlockedDoors.Clear();
             lockedDoors.Clear();
             placedRooms.Clear();
+            roomUsedCounts = new int[tileSet.tileSet.Count];
+
+
             //place starting tile
             TileWithState startingTileData = tileSet.startTiles[Random.Range(0,tileSet.startTiles.Count)];
             float rotation = tileSet.allowRotation ? 90 * Random.Range(0,4) : 0;
@@ -104,11 +108,11 @@ public class MapGenerator : MonoBehaviour
             
             //the maximum amount of tiles placed
             int tempStop = tileSet.maxTileCount;
-            
+            int roomsPlaced = 0;
             while(openDoors.Count > 0)
             {
                 
-                if(GenerateRoom(0, openDoors, unlockedDoors, lockedDoors, placedRooms, tileSet, tileSet.minTileCount < placedRooms.Count && !endingMade, out bool usedExit))
+                if(GenerateRoom(0, openDoors, unlockedDoors, lockedDoors, placedRooms, tileSet, tileSet.minTileCount < placedRooms.Count && !endingMade, out bool usedExit, ref roomUsedCounts, roomsPlaced))
                 {
                     if(usedExit)
                     {
@@ -117,6 +121,7 @@ public class MapGenerator : MonoBehaviour
                     unlockedDoors.Add(openDoors[0]);
                     openDoors.RemoveAt(0);
                     tempStop -= 1;
+                    roomsPlaced++;
                 }
                 else
                 {
@@ -130,10 +135,9 @@ public class MapGenerator : MonoBehaviour
             }
         }
         //if we still dont have enough rooms we give up
-        if(placedRooms.Count < tileSet.minTileCount || !endingMade)
+        if(placedRooms.Count < tileSet.minTileCount || (!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)))
         {
             Debug.LogError("Something prevented a map from being fully generated. This can be caused by not enough tile varients, poorly weighted tiles, or a pre existing object is blocking collision.");
-            return false;
         }
 
         openDoors.AddRange(lockedDoors);
@@ -203,7 +207,8 @@ public class MapGenerator : MonoBehaviour
                               List<DoorLocation> lockedDoors, 
                               List<PlacedRoomData> placedRooms, 
                               RoomTileMap tileSet, 
-                              bool allowEndingRooms, out bool usedEndingRoom)
+                              bool allowEndingRooms, out bool usedEndingRoom,
+                              ref int[] roomUsedCounts, int roomsPlaced)
     {
         usedEndingRoom = false;
         Vector2 targetDoorPos = openDoors[doorIndex].position;
@@ -213,11 +218,33 @@ public class MapGenerator : MonoBehaviour
         {
             if(i >= tileSet.tileSet.Count)
             {
-                roomProbabilities[i] = tileSet.endTiles[i-tileSet.tileSet.Count].rarity;
+                roomProbabilities[i] = tileSet.endTiles[i-tileSet.tileSet.Count].rarity * 2;
             }
             else
             {
-                roomProbabilities[i] = tileSet.tileSet[i].rarity;
+                if(tileSet.tileSet[i].requiredUse > 0)
+                {
+                    if(roomUsedCounts[i] < tileSet.tileSet[i].requiredUse)
+                    {
+                        if(roomsPlaced > tileSet.minTileCount)
+                        {
+                            roomProbabilities[i] = tileSet.tileSet[i].rarity * 2 * tileSet.tileSet[i].rarity - roomProbabilities[i];
+                        }
+                        else
+                        {
+                            roomProbabilities[i] = tileSet.tileSet[i].rarity;
+                        }
+                    }
+                    else
+                    {
+                        roomProbabilities[i] = 0;
+                    }
+                    
+                }
+                else
+                {
+                    roomProbabilities[i] = tileSet.tileSet[i].rarity;
+                }
             }
         }
         bool roomFits = false;
@@ -248,6 +275,10 @@ public class MapGenerator : MonoBehaviour
                 placedRooms.Add(newRoom);
                 openDoors.AddRange(newDoors);
                 usedEndingRoom = roomIndex >= tileSet.tileSet.Count;
+                if(roomIndex < tileSet.tileSet.Count)
+                {
+                    roomUsedCounts[roomIndex]++;
+                }
             }
             
 
@@ -399,11 +430,11 @@ public class MapGenerator : MonoBehaviour
         GameObject tileObject = Instantiate(room, transform);
         switch(axisMode)
         {
-            case AxisMode.XY:
+            case AxisMode.IS2D:
                 tileObject.transform.position = new Vector3(position.x, position.y, 0);
                 tileObject.transform.eulerAngles = new Vector3(0, 0, rotation);
                 break;
-            case AxisMode.XZ:
+            case AxisMode.IS3D:
                 tileObject.transform.position = new Vector3(position.x, 0, position.y);
                 tileObject.transform.eulerAngles = new Vector3(0, rotation, 0);
                 break;
@@ -476,7 +507,7 @@ public class MapGenerator : MonoBehaviour
     /// <summary>
     /// Wraps a degree value to be inbetween 0(inclusive) and 360(exclusive)
     /// </summary>
-    private float DegWrap(float original)
+    public static float DegWrap(float original)
     {
         while(original >= 360)
         {
@@ -496,7 +527,7 @@ public class MapGenerator : MonoBehaviour
             Gizmos.color = Color.magenta;
             switch(tileSetData.axisMode)
             {
-                case RoomTileMap.AxisMode.XY:
+                case RoomTileMap.AxisMode.IS2D:
                 {
                     Vector3 doorPos = transform.position + (Quaternion.Euler(0,0,transform.eulerAngles.z) * new Vector3(d.position.x,d.position.y,0));
                     Gizmos.DrawCube(doorPos, new Vector3(0.2f,0.2f,0.2f)); 
@@ -505,7 +536,7 @@ public class MapGenerator : MonoBehaviour
                     
                     break;
                 }
-                case RoomTileMap.AxisMode.XZ:
+                case RoomTileMap.AxisMode.IS3D:
                 {    
                     Vector3 doorPos = transform.position + (Quaternion.Euler(0,transform.eulerAngles.y,0) * new Vector3(d.position.x,0,d.position.y));
                     Gizmos.DrawCube(doorPos, new Vector3(0.3f,0.3f,0.3f));  
@@ -520,7 +551,7 @@ public class MapGenerator : MonoBehaviour
     /// <summary>
     /// Calculates the diference in angle of two angles
     /// </summary>
-    private float AngleDiff(float angle1, float angle2)
+    public static float AngleDiff(float angle1, float angle2)
     {
         return Mathf.Abs(DegWrap(DegWrap(angle1) - DegWrap(angle2)));
     }
@@ -548,5 +579,20 @@ public class MapGenerator : MonoBehaviour
         }
         return results;
     }
+
+    private bool RequiredRoomsSpawned(int[] roomSpawnCounts, RoomTileMap tileSet)
+    {
+        
+        for(int i = 0; i < tileSet.tileSet.Count; i++)
+        {
+            TileWithState t = tileSet.tileSet[i];
+            if(t.requiredUse > 0 && !(t.requiredUse == roomSpawnCounts[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 }
