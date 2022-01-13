@@ -38,6 +38,7 @@ public class MapGenerator : MonoBehaviour
 
     }
 
+
     /// <summary>
     /// Attempts to generate a map based off of the provided tile set
     /// </summary>
@@ -50,6 +51,22 @@ public class MapGenerator : MonoBehaviour
                             out List<DoorLocation> lockedDoors,
                             out List<PlacedRoomData> placedRooms,
                             bool enableDebug = false)
+    {
+        return GenerateMap(tileSet, out openDoors, out unlockedDoors, out lockedDoors, out placedRooms, 1000, enableDebug);
+    }
+
+    /// <summary>
+    /// Attempts to generate a map based off of the provided tile set
+    /// </summary>
+    ///<returns>
+    /// Returns true when the map was fully generated, returns false otherwise.
+    ///</returns>
+    public bool GenerateMap(RoomTileMap tileSet, 
+                            out List<DoorLocation> openDoors,
+                            out List<DoorLocation> unlockedDoors,
+                            out List<DoorLocation> lockedDoors,
+                            out List<PlacedRoomData> placedRooms,
+                            int maxTries, bool enableDebug = false)
     {
         openDoors = new List<DoorLocation>(); //list of all doors that have not had an attempted tile placed at the door
         unlockedDoors = new List<DoorLocation>(); //list of all doors that have a tile on both sides
@@ -79,7 +96,7 @@ public class MapGenerator : MonoBehaviour
             return false;
         }
         #endregion
-        int maxAttempts = 5;
+        int maxAttempts = maxTries;
         bool endingMade = false;
         while(((!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)) || placedRooms.Count < tileSet.minTileCount) && maxAttempts > 0)
         {
@@ -134,10 +151,12 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
+        bool validMap = true;
         //if we still dont have enough rooms we give up
         if(placedRooms.Count < tileSet.minTileCount || (!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)))
         {
             Debug.LogError("Something prevented a map from being fully generated. This can be caused by not enough tile varients, poorly weighted tiles, or a pre existing object is blocking collision.");
+            validMap = false;
         }
 
         openDoors.AddRange(lockedDoors);
@@ -187,11 +206,7 @@ public class MapGenerator : MonoBehaviour
             GameObject newDoorFab = tileSet.doorCaps[doorIndex].tileObject;
             PlaceRoom(newDoorFab, dl.position, dl.rotation, tileSet.axisMode, 0, out List<DoorLocation> newOpenDoors, out PlacedRoomData newDoor, 0, tileSet.useRB2D);
         }
-
-
-
-
-        return false;
+        return validMap;
     }
 
 
@@ -228,7 +243,7 @@ public class MapGenerator : MonoBehaviour
                     {
                         if(roomsPlaced > tileSet.minTileCount)
                         {
-                            roomProbabilities[i] = tileSet.tileSet[i].rarity * 2 * tileSet.tileSet[i].rarity - roomProbabilities[i];
+                            roomProbabilities[i] = (1 + tileSet.tileSet[i].rarity) * roomsPlaced * (tileSet.tileSet[i].rarity / tileSet.maxTileCount);
                         }
                         else
                         {

@@ -22,6 +22,11 @@ MonoBehaviour:
   - tileObject: {fileID: 3520878922250001581, guid: 5784178f1e09d28708f9e7daee97403b, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
+    rarity: 8
+    requiredUse: 0
+  - tileObject: {fileID: 871067225210147397, guid: be4fc692dc6361d66afde85a57d87949, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
     rarity: 3
     requiredUse: 0
   doorCaps:
@@ -34,42 +39,37 @@ MonoBehaviour:
   - tileObject: {fileID: 8890337851290767101, guid: a8c098c085f49371eab044bfe020b7dc, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 3
+    rarity: 5
     requiredUse: 0
   - tileObject: {fileID: 4357057344917671455, guid: da72e33f6df520f73a84c934ef49da48, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 3
-    requiredUse: 0
-  - tileObject: {fileID: 871067225210147397, guid: be4fc692dc6361d66afde85a57d87949, type: 3}
-    tileUsable: 1
-    previewImage: {fileID: 0}
-    rarity: 2
+    rarity: 5
     requiredUse: 0
   - tileObject: {fileID: 3640411638648303165, guid: 6641fdcf9abcc87ed8fc32474fff354e, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 6
+    rarity: 8
     requiredUse: 0
   - tileObject: {fileID: 6019999615960199609, guid: 5e7c7b1fd3b36ed07967c61706ebc1bd, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 3
+    rarity: 5
     requiredUse: 0
   - tileObject: {fileID: 7393459358265174681, guid: 5ea1c6581fdba135aaaafc0e7a2ecb92, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 5
+    rarity: 7
     requiredUse: 0
   - tileObject: {fileID: 7661926079775117437, guid: 2846aa5987aba01af8e41c38c394d36c, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 1
+    rarity: 5
     requiredUse: 1
   axisMode: 1
   allowRotation: 1
   maxRoomDistance: 10
   useRB2D: 1
   maxOverlap: 0.1
-  maxTileCount: 100
-  minTileCount: 80
+  maxTileCount: 50
+  minTileCount: 40
