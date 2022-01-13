@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GenAndDel : MonoBehaviour
+public class MapTester : MonoBehaviour
 {
     public int attemptsToMake = 100;
     public RoomTileMap setToTest;
@@ -47,10 +47,9 @@ public class GenAndDel : MonoBehaviour
         {
             if(!done)
             {
-                Debug.Log(setToTest.name + "results:" + failedAttempts + "/" + attempts + " Failed. Target fail rate is below 5%. The faild attempts have been left in the scene deactivated for review.");
+                Debug.Log(setToTest.name + "results:" + failedAttempts + "/" + attempts + " Failed. The faild attempts have been left in the scene deactivated for review.");
                 done = true;
             }
         }
-        
     }
 }
