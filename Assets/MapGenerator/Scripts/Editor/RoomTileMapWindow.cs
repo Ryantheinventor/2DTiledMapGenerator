@@ -8,7 +8,7 @@ using System;
 class RoomTileMapWindow : EditorWindow 
 {
 
-    private int prefabDisplayRowCount = 3;
+    
 
     public RoomTileMap tileMap = null; 
     private RoomTileMap lastMap = null;
@@ -24,9 +24,42 @@ class RoomTileMapWindow : EditorWindow
     [MenuItem("Window/RandomMapGenerator/RoomTileMapEditor")]
     static void ShowWindow() 
     {
+        WindowSetup(null);
+    }
+
+    /// <summary>
+    /// handles opening the settings asset in the unity editor
+    /// </summary>
+    [OnOpenAssetAttribute(1)]
+    public static bool OpenAsset(int instanceID, int line)
+    {
+        try
+        {
+            RoomTileMap tileMapAsset = (RoomTileMap)EditorUtility.InstanceIDToObject(instanceID);
+            WindowSetup(tileMapAsset);
+            return true;
+        }
+        catch(InvalidCastException e)
+        {
+            return false;
+        }
+    }
+
+    static void WindowSetup(RoomTileMap tileMap)
+    {
         var window = GetWindow<RoomTileMapWindow>();
-        window.titleContent = new GUIContent("RoomTileMapEditor");
+        window.titleContent = new GUIContent("Room Tile Map Editor");
+        Debug.Log(window.minSize + "," + window.maxSize);
+        
+        window.minSize = new Vector2(225,window.minSize.y);
+        window.maxSize = new Vector2(870,window.maxSize.y);
         window.Show();
+
+        if(!(!tileMap && window.tileMap))
+        {
+            window.tileMap = tileMap;
+        }
+
     }
 
     /// <summary>
@@ -34,7 +67,6 @@ class RoomTileMapWindow : EditorWindow
     /// </summary>
     void OnGUI() 
     {
-
         totalHeight = 0;
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos,true,false);
         GUILayout.Label("Tile Map", EditorStyles.boldLabel);
@@ -206,7 +238,6 @@ class RoomTileMapWindow : EditorWindow
         if(tileMap)
         {
             AssetDatabase.SaveAssetIfDirty(tileMap);
-            Debug.Log("Saving asset");
         }
     }
 
@@ -223,7 +254,6 @@ class RoomTileMapWindow : EditorWindow
         if(tileMap)
         {
             AssetDatabase.SaveAssetIfDirty(tileMap);
-            Debug.Log("Saving asset");
         }
     }
 
@@ -234,6 +264,9 @@ class RoomTileMapWindow : EditorWindow
     {
         int rowCount = 0;
         List<int> tilesToRemove = new List<int>();
+
+        int prefabDisplayRowCount = Screen.width < 425 ? 1 : Screen.width < 635 ? 2 : Screen.width < 855 ? 3 : 4;
+
         if(tileList.Count > 0)
         {
             for(int i = 0; i < tileList.Count; i++)
@@ -425,23 +458,5 @@ class RoomTileMapWindow : EditorWindow
         }
     }
 
-    /// <summary>
-    /// handles opening the settings asset in the unity editor
-    /// </summary>
-    [OnOpenAssetAttribute(1)]
-    public static bool OpenAsset(int instanceID, int line)
-    {
-        try
-        {
-            RoomTileMap tileMapAsset = (RoomTileMap)EditorUtility.InstanceIDToObject(instanceID);
-            RoomTileMapWindow window = (RoomTileMapWindow) EditorWindow.GetWindow( typeof(RoomTileMapWindow), false, "RoomTileMapEditor" );
-            window.tileMap = tileMapAsset;
-            window.Show();
-            return true;
-        }
-        catch(InvalidCastException e)
-        {
-            return false;
-        }
-    }
+    
 }
