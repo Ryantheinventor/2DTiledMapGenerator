@@ -8,9 +8,7 @@ public class MapGenerator : MonoBehaviour
     public RoomTileMap tileSetData;
     public bool generateOnStart = true;
 
-    private List<DoorLocation> mgOpenDoors = new List<DoorLocation>();
-    private List<DoorLocation> mgUnlockedDoors = new List<DoorLocation>();
-    private List<DoorLocation> mgLockedDoors = new List<DoorLocation>();
+    private List<DoorLocation> mgDoorways = new List<DoorLocation>();
     private List<PlacedRoomData> mgPlacedRooms = new List<PlacedRoomData>();
 
     public struct DoorLocation
@@ -19,6 +17,7 @@ public class MapGenerator : MonoBehaviour
         public float rotation;
 
         public int roomIndex;
+        public bool isLocked;
     }
 
     public struct PlacedRoomData
@@ -33,9 +32,8 @@ public class MapGenerator : MonoBehaviour
     {
         if(generateOnStart)
         {
-            GenerateMap(tileSetData, out mgOpenDoors, out mgUnlockedDoors, out mgLockedDoors, out mgPlacedRooms, true);
+            GenerateMap(tileSetData, out mgDoorways, out mgPlacedRooms, true);
         }
-
     }
 
 
@@ -46,13 +44,11 @@ public class MapGenerator : MonoBehaviour
     /// Returns true when the map was fully generated, returns false otherwise.
     ///</returns>
     public bool GenerateMap(RoomTileMap tileSet, 
-                            out List<DoorLocation> openDoors,
-                            out List<DoorLocation> unlockedDoors,
-                            out List<DoorLocation> lockedDoors,
+                            out List<DoorLocation> doorways,
                             out List<PlacedRoomData> placedRooms,
                             bool enableDebug = false)
     {
-        return GenerateMap(tileSet, out openDoors, out unlockedDoors, out lockedDoors, out placedRooms, 1000, enableDebug);
+        return GenerateMap(tileSet, out doorways, out placedRooms, 1000, enableDebug);
     }
 
     /// <summary>
@@ -62,15 +58,13 @@ public class MapGenerator : MonoBehaviour
     /// Returns true when the map was fully generated, returns false otherwise.
     ///</returns>
     public bool GenerateMap(RoomTileMap tileSet, 
-                            out List<DoorLocation> openDoors,
-                            out List<DoorLocation> unlockedDoors,
-                            out List<DoorLocation> lockedDoors,
+                            out List<DoorLocation> doorways,
                             out List<PlacedRoomData> placedRooms,
                             int maxTries, bool enableDebug = false)
     {
-        openDoors = new List<DoorLocation>(); //list of all doors that have not had an attempted tile placed at the door
-        unlockedDoors = new List<DoorLocation>(); //list of all doors that have a tile on both sides
-        lockedDoors = new List<DoorLocation>(); //list of all doors that lead nowhere
+        List<DoorLocation> openDoors = new List<DoorLocation>(); //list of all doors that have not had an attempted tile placed at the door
+        List<DoorLocation> blockedDoors = new List<DoorLocation>(); //list of doors that were blocked when generating
+        doorways = new List<DoorLocation>(); //list of all doors that are in the map
         placedRooms = new List<PlacedRoomData>(); //list of all placed rooms
         int[] roomUsedCounts = new int[tileSet.tileSet.Count];
         
@@ -96,6 +90,7 @@ public class MapGenerator : MonoBehaviour
             return false;
         }
         #endregion
+        
         int maxAttempts = maxTries;
         bool endingMade = false;
         while(((!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)) || placedRooms.Count < tileSet.minTileCount) && maxAttempts > 0)
@@ -109,9 +104,8 @@ public class MapGenerator : MonoBehaviour
             }
             endingMade = false;
             openDoors.Clear();
-            unlockedDoors.Clear();
-            lockedDoors.Clear();
             placedRooms.Clear();
+            doorways.Clear();
             roomUsedCounts = new int[tileSet.tileSet.Count];
 
 
@@ -129,20 +123,20 @@ public class MapGenerator : MonoBehaviour
             while(openDoors.Count > 0)
             {
                 
-                if(GenerateRoom(0, openDoors, unlockedDoors, lockedDoors, placedRooms, tileSet, tileSet.minTileCount < placedRooms.Count && !endingMade, out bool usedExit, ref roomUsedCounts, roomsPlaced))
+                if(GenerateRoom(0, openDoors, placedRooms, tileSet, tileSet.minTileCount < placedRooms.Count && !endingMade, out bool usedExit, ref roomUsedCounts, roomsPlaced))
                 {
                     if(usedExit)
                     {
                         endingMade = true;
                     }
-                    unlockedDoors.Add(openDoors[0]);
+                    doorways.Add(openDoors[0]);
                     openDoors.RemoveAt(0);
                     tempStop -= 1;
                     roomsPlaced++;
                 }
                 else
                 {
-                    lockedDoors.Add(openDoors[0]);
+                    blockedDoors.Add(openDoors[0]);
                     openDoors.RemoveAt(0);
                 }
                 if(tempStop <= 0)
@@ -159,10 +153,10 @@ public class MapGenerator : MonoBehaviour
             validMap = false;
         }
 
-        openDoors.AddRange(lockedDoors);
-        lockedDoors.Clear();
+        openDoors.AddRange(blockedDoors);
+        blockedDoors.Clear();
 
-        //combine doors that ere in the same place
+        //combine doors that are in the same place
         while(openDoors.Count > 1)
         {
             bool foundOne = false;
@@ -172,7 +166,7 @@ public class MapGenerator : MonoBehaviour
                 {
                     if(AngleDiff(openDoors[0].rotation, openDoors[i].rotation) > 0.1f)
                     {
-                        unlockedDoors.Add(openDoors[0]);
+                        doorways.Add(openDoors[0]);
                         openDoors.RemoveAt(i);
                         openDoors.RemoveAt(0);
                         foundOne = true;
@@ -182,29 +176,38 @@ public class MapGenerator : MonoBehaviour
             }
             if(!foundOne)
             {
-                lockedDoors.Add(openDoors[0]);
+                DoorLocation d = openDoors[0];
+                d.isLocked = true;
+                doorways.Add(d);
                 openDoors.RemoveAt(0);
             }
         }
 
 
         //add any remaining doors to the locked door catagory
-        lockedDoors.AddRange(openDoors);
+        for(int i = 0; i < openDoors.Count; i++)
+        {
+            DoorLocation d = openDoors[i];
+            d.isLocked = true;
+            doorways.Add(d);
+        }
         openDoors.Clear();
 
-
-
-        //add locked doors to doorways that do not lead to anything
+        //add locked door objects to doorways that do not lead to anything
         float[] doorProbabilities = new float[tileSet.doorCaps.Count];
         for(int i = 0; i < doorProbabilities.Length; i++)
         {
             doorProbabilities[i] = tileSet.doorCaps[i].rarity;
         }
-        foreach(DoorLocation dl in lockedDoors)
-        {
-            int doorIndex = SkewedNum(doorProbabilities);
-            GameObject newDoorFab = tileSet.doorCaps[doorIndex].tileObject;
-            PlaceRoom(newDoorFab, dl.position, dl.rotation, tileSet.axisMode, 0, out List<DoorLocation> newOpenDoors, out PlacedRoomData newDoor, 0, tileSet.useRB2D);
+        foreach(DoorLocation dl in doorways)
+        {   
+            if(dl.isLocked)
+            {
+                int doorIndex = SkewedNum(doorProbabilities);
+                GameObject newDoorFab = tileSet.doorCaps[doorIndex].tileObject;
+                PlaceRoom(newDoorFab, dl.position, dl.rotation, tileSet.axisMode, 0, out List<DoorLocation> newOpenDoors, out PlacedRoomData newDoor, 0, tileSet.useRB2D);
+            }
+            
         }
         return validMap;
     }
@@ -218,8 +221,6 @@ public class MapGenerator : MonoBehaviour
     /// </returns>
     private bool GenerateRoom(int doorIndex, 
                               List<DoorLocation> openDoors, 
-                              List<DoorLocation> unlockedDoors,
-                              List<DoorLocation> lockedDoors, 
                               List<PlacedRoomData> placedRooms, 
                               RoomTileMap tileSet, 
                               bool allowEndingRooms, out bool usedEndingRoom,
@@ -537,29 +538,33 @@ public class MapGenerator : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        foreach(DoorLocation d in mgLockedDoors)
+        foreach(DoorLocation d in mgDoorways)
         {
-            Gizmos.color = Color.magenta;
-            switch(tileSetData.axisMode)
+            if(d.isLocked)
             {
-                case RoomTileMap.AxisMode.IS2D:
+                Gizmos.color = Color.magenta;
+                switch(tileSetData.axisMode)
                 {
-                    Vector3 doorPos = transform.position + (Quaternion.Euler(0,0,transform.eulerAngles.z) * new Vector3(d.position.x,d.position.y,0));
-                    Gizmos.DrawCube(doorPos, new Vector3(0.2f,0.2f,0.2f)); 
-                    Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,0,transform.eulerAngles.z+d.rotation) * new Vector3(0,-1,0))); 
-                    Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,0,transform.eulerAngles.z+d.rotation) * new Vector3(0,1,0))); 
-                    
-                    break;
-                }
-                case RoomTileMap.AxisMode.IS3D:
-                {    
-                    Vector3 doorPos = transform.position + (Quaternion.Euler(0,transform.eulerAngles.y,0) * new Vector3(d.position.x,0,d.position.y));
-                    Gizmos.DrawCube(doorPos, new Vector3(0.3f,0.3f,0.3f));  
-                    Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,transform.eulerAngles.y+d.rotation,0) * new Vector3(0,-1,0))); 
-                    Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,transform.eulerAngles.y+d.rotation,0) * new Vector3(0,1,0))); 
-                    break;
-                }
-            }  
+                    case RoomTileMap.AxisMode.IS2D:
+                    {
+                        Vector3 doorPos = transform.position + (Quaternion.Euler(0,0,transform.eulerAngles.z) * new Vector3(d.position.x,d.position.y,0));
+                        Gizmos.DrawCube(doorPos, new Vector3(0.2f,0.2f,0.2f)); 
+                        Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,0,transform.eulerAngles.z+d.rotation) * new Vector3(0,-1,0))); 
+                        Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,0,transform.eulerAngles.z+d.rotation) * new Vector3(0,1,0))); 
+                        
+                        break;
+                    }
+                    case RoomTileMap.AxisMode.IS3D:
+                    {    
+                        Vector3 doorPos = transform.position + (Quaternion.Euler(0,transform.eulerAngles.y,0) * new Vector3(d.position.x,0,d.position.y));
+                        Gizmos.DrawCube(doorPos, new Vector3(0.3f,0.3f,0.3f));  
+                        Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,transform.eulerAngles.y+d.rotation,0) * new Vector3(0,-1,0))); 
+                        Gizmos.DrawLine(doorPos, doorPos + (Quaternion.Euler(0,transform.eulerAngles.y+d.rotation,0) * new Vector3(0,1,0))); 
+                        break;
+                    }
+                }  
+            }
+            
         } 
     }
 

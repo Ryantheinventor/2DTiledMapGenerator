@@ -30,16 +30,24 @@ public class MapTester : MonoBehaviour
             genObject = Instantiate(prefab);
             MapGenerator mapGen = genObject.GetComponent<MapGenerator>();
             if(!mapGen.GenerateMap(setToTest, 
-                            out List<MapGenerator.DoorLocation> openDoors, 
-                            out List<MapGenerator.DoorLocation> unlockedDoors, 
-                            out List<MapGenerator.DoorLocation> lockedDoors, 
+                            out List<MapGenerator.DoorLocation> doorways, 
                             out List<MapGenerator.PlacedRoomData> placedRooms,
                             1, 
                             false))
             {
+                
                 lastFailed = true;
                 failedAttempts++;
             }
+            int lCount = 0;
+            foreach(MapGenerator.DoorLocation d in doorways)
+            {
+                if(d.isLocked)
+                {
+                    lCount++;
+                }
+            }    
+            Debug.Log($"Total Doors:{doorways.Count}, Locked Doors:{lCount}, Rooms:{placedRooms.Count}");
             attempts++;
 
         }
