@@ -8,6 +8,9 @@ public class MapGenerator : MonoBehaviour
     public RoomTileMap tileSetData;
     public bool generateOnStart = true;
 
+    public List<DoorLocation> Doorways {get => mgDoorways;}
+    public List<PlacedRoomData> PlacedRooms {get => mgPlacedRooms;}
+
     private List<DoorLocation> mgDoorways = new List<DoorLocation>();
     private List<PlacedRoomData> mgPlacedRooms = new List<PlacedRoomData>();
 
