@@ -34,7 +34,7 @@ class RoomTileMapWindow : EditorWindow
     /// </summary>
     void OnGUI() 
     {
-        
+
         totalHeight = 0;
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos,true,false);
         GUILayout.Label("Tile Map", EditorStyles.boldLabel);
@@ -171,10 +171,10 @@ class RoomTileMapWindow : EditorWindow
             switch(tileMap.axisMode)
             {
                 case RoomTileMap.AxisMode.IS2D:
-                    modeButtonText += "X/Y (map spreads across the X and Y axis, good for 2D games)";
+                    modeButtonText += "2D";
                     break;
                 case RoomTileMap.AxisMode.IS3D:
-                    modeButtonText += "X/Z (map spreads across the X and Z axis, good for 3D games)";
+                    modeButtonText += "3D";
                     break;
             }
             if(GUILayout.Button(modeButtonText))
