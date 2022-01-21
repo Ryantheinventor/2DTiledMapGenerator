@@ -31,27 +31,29 @@ public class MapGenerator : MonoBehaviour
         public float rotation;
     }
 
+    public class Map
+    {
+        public bool isDone = false;
+        public bool failed = false;
+        public float progress = 0;
+        public List<PlacedRoomData> rooms;
+        public List<DoorLocation> doorways;
+
+        public Map()
+        {
+            rooms = new List<PlacedRoomData>();
+            doorways = new List<DoorLocation>();
+        }
+
+    }
+
+
     void Start() 
     {
         if(generateOnStart)
         {
-            GenerateMap(tileSetData, out mgDoorways, out mgPlacedRooms, true);
+            GenerateMap(tileSetData, out mgDoorways, out mgPlacedRooms, 1000, true);
         }
-    }
-
-
-    /// <summary>
-    /// Attempts to generate a map based off of the provided tile set
-    /// </summary>
-    ///<returns>
-    /// Returns true when the map was fully generated, returns false otherwise.
-    ///</returns>
-    public bool GenerateMap(RoomTileMap tileSet, 
-                            out List<DoorLocation> doorways,
-                            out List<PlacedRoomData> placedRooms,
-                            bool enableDebug = false)
-    {
-        return GenerateMap(tileSet, out doorways, out placedRooms, 1000, enableDebug);
     }
 
     /// <summary>
@@ -64,11 +66,35 @@ public class MapGenerator : MonoBehaviour
                             out List<DoorLocation> doorways,
                             out List<PlacedRoomData> placedRooms,
                             int maxTries, bool enableDebug = false)
+    {   
+        IEnumerator target = GenerateMapAsync(tileSet, maxTries, enableDebug);
+        
+        while(target.MoveNext())
+        {
+            if(((Map)target.Current).isDone)
+            {
+                break;
+            }
+        }
+        Map mapData = ((Map)target.Current);
+        doorways = mapData.doorways;
+        placedRooms = mapData.rooms;
+        return !((Map)target.Current).failed;
+        //return GenerateMap(tileSet, out doorways, out placedRooms, maxTries, enableDebug);
+    }
+
+    /// <summary>
+    /// Attempts to generate a map based off of the provided tile set
+    /// </summary>
+    ///<returns>
+    /// Returns true when the map was fully generated, returns false otherwise.
+    ///</returns>
+    public IEnumerator<Map> GenerateMapAsync(RoomTileMap tileSet, 
+                            int maxTries, bool enableDebug = false)
     {
+        Map myMap = new Map();
         List<DoorLocation> openDoors = new List<DoorLocation>(); //list of all doors that have not had an attempted tile placed at the door
         List<DoorLocation> blockedDoors = new List<DoorLocation>(); //list of doors that were blocked when generating
-        doorways = new List<DoorLocation>(); //list of all doors that are in the map
-        placedRooms = new List<PlacedRoomData>(); //list of all placed rooms
         int[] roomUsedCounts = new int[tileSet.tileSet.Count];
         
         #region check if data is useable
@@ -90,25 +116,28 @@ public class MapGenerator : MonoBehaviour
         }
         if(!safeToStart)
         {
-            return false;
+            myMap.isDone = true;
+            myMap.failed = true;
+            yield return myMap;
+            yield break;
         }
         #endregion
         
         int maxAttempts = maxTries;
         bool endingMade = false;
-        while(((!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)) || placedRooms.Count < tileSet.minTileCount) && maxAttempts > 0)
+        while(((!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)) || myMap.rooms.Count < tileSet.minTileCount) && maxAttempts > 0)
         {
             maxAttempts--;
 
             //reset data for just incase this is not the first time around
-            foreach(PlacedRoomData prd in placedRooms)
+            foreach(PlacedRoomData prd in myMap.rooms)
             {
                 Destroy(prd.roomObject);
             }
             endingMade = false;
             openDoors.Clear();
-            placedRooms.Clear();
-            doorways.Clear();
+            myMap.rooms.Clear();
+            myMap.doorways.Clear();
             roomUsedCounts = new int[tileSet.tileSet.Count];
 
 
@@ -117,7 +146,7 @@ public class MapGenerator : MonoBehaviour
             float rotation = tileSet.allowRotation ? 90 * Random.Range(0,4) : 0;
             
             PlaceRoom(startingTileData.tileObject, new Vector2(0,0), rotation, tileSet.axisMode, -1, out List<DoorLocation> newRooms, out PlacedRoomData newRoomData, 0, tileSet.useRB2D);
-            placedRooms.Add(newRoomData);
+            myMap.rooms.Add(newRoomData);
             openDoors.AddRange(newRooms);
             
             //the maximum amount of tiles placed
@@ -126,13 +155,13 @@ public class MapGenerator : MonoBehaviour
             while(openDoors.Count > 0)
             {
                 
-                if(GenerateRoom(0, openDoors, placedRooms, tileSet, tileSet.minTileCount < placedRooms.Count && !endingMade, out bool usedExit, ref roomUsedCounts, roomsPlaced))
+                if(GenerateRoom(0, openDoors, myMap.rooms, tileSet, tileSet.minTileCount < myMap.rooms.Count && !endingMade, out bool usedExit, ref roomUsedCounts, roomsPlaced))
                 {
                     if(usedExit)
                     {
                         endingMade = true;
                     }
-                    doorways.Add(openDoors[0]);
+                    myMap.doorways.Add(openDoors[0]);
                     openDoors.RemoveAt(0);
                     tempStop -= 1;
                     roomsPlaced++;
@@ -146,11 +175,13 @@ public class MapGenerator : MonoBehaviour
                 {
                     break;
                 }
+                myMap.progress = roomsPlaced/(tileSet.maxTileCount+5f);//add 5 to have head room for future parts.
+                yield return myMap;
             }
         }
         bool validMap = true;
         //if we still dont have enough rooms we give up
-        if(placedRooms.Count < tileSet.minTileCount || (!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)))
+        if(myMap.rooms.Count < tileSet.minTileCount || (!endingMade || !RequiredRoomsSpawned(roomUsedCounts, tileSet)))
         {
             Debug.LogError("Something prevented a map from being fully generated. This can be caused by not enough tile varients, poorly weighted tiles, or a pre existing object is blocking collision.");
             validMap = false;
@@ -169,7 +200,7 @@ public class MapGenerator : MonoBehaviour
                 {
                     if(AngleDiff(openDoors[0].rotation, openDoors[i].rotation) > 0.1f)
                     {
-                        doorways.Add(openDoors[0]);
+                        myMap.doorways.Add(openDoors[0]);
                         openDoors.RemoveAt(i);
                         openDoors.RemoveAt(0);
                         foundOne = true;
@@ -181,7 +212,7 @@ public class MapGenerator : MonoBehaviour
             {
                 DoorLocation d = openDoors[0];
                 d.isLocked = true;
-                doorways.Add(d);
+                myMap.doorways.Add(d);
                 openDoors.RemoveAt(0);
             }
         }
@@ -192,7 +223,7 @@ public class MapGenerator : MonoBehaviour
         {
             DoorLocation d = openDoors[i];
             d.isLocked = true;
-            doorways.Add(d);
+            myMap.doorways.Add(d);
         }
         openDoors.Clear();
 
@@ -202,7 +233,7 @@ public class MapGenerator : MonoBehaviour
         {
             doorProbabilities[i] = tileSet.doorCaps[i].rarity;
         }
-        foreach(DoorLocation dl in doorways)
+        foreach(DoorLocation dl in myMap.doorways)
         {   
             if(dl.isLocked)
             {
@@ -212,7 +243,10 @@ public class MapGenerator : MonoBehaviour
             }
             
         }
-        return validMap;
+        myMap.progress = 1f;
+        myMap.isDone = true;
+        myMap.failed = !validMap;
+        yield return myMap;
     }
 
 
