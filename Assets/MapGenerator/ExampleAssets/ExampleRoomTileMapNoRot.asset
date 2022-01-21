@@ -53,7 +53,6 @@ MonoBehaviour:
     requiredUse: 0
   axisMode: 0
   allowRotation: 0
-  maxRoomDistance: 0
   useRB2D: 1
   maxOverlap: 0.1
   maxTileCount: 100

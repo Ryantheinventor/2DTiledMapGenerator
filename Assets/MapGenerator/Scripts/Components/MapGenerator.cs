@@ -56,16 +56,26 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// Attempts to generate a map based off of the provided tile set
     /// </summary>
     ///<returns>
     /// Returns true when the map was fully generated, returns false otherwise.
     ///</returns>
-    public bool GenerateMap(RoomTileMap tileSet, 
-                            out List<DoorLocation> doorways,
-                            out List<PlacedRoomData> placedRooms,
-                            int maxTries, bool enableDebug = false)
+    public bool GenerateMap(RoomTileMap tileSet, int maxTries = 100, bool enableDebug = false)
+    {   
+        return GenerateMap(tileSet, out List<DoorLocation> doorways, out List<PlacedRoomData> placedRooms);        
+    }
+
+
+    /// <summary>
+    /// Attempts to generate a map based off of the provided tile set
+    /// </summary>
+    ///<returns>
+    /// Returns true when the map was fully generated, returns false otherwise.
+    ///</returns>
+    public bool GenerateMap(RoomTileMap tileSet, out List<DoorLocation> doorways, out List<PlacedRoomData> placedRooms, int maxTries = 100, bool enableDebug = false)
     {   
         IEnumerator target = GenerateMapAsync(tileSet, maxTries, enableDebug);
         
@@ -87,10 +97,9 @@ public class MapGenerator : MonoBehaviour
     /// Attempts to generate a map based off of the provided tile set
     /// </summary>
     ///<returns>
-    /// Returns true when the map was fully generated, returns false otherwise.
+    /// Returns a Map object containing info about the generated map
     ///</returns>
-    public IEnumerator<Map> GenerateMapAsync(RoomTileMap tileSet, 
-                            int maxTries, bool enableDebug = false)
+    public IEnumerator<Map> GenerateMapAsync(RoomTileMap tileSet, int maxTries = 100, bool enableDebug = false)
     {
         Map myMap = new Map();
         List<DoorLocation> openDoors = new List<DoorLocation>(); //list of all doors that have not had an attempted tile placed at the door
@@ -137,6 +146,7 @@ public class MapGenerator : MonoBehaviour
             endingMade = false;
             openDoors.Clear();
             myMap.rooms.Clear();
+            blockedDoors.Clear();
             myMap.doorways.Clear();
             roomUsedCounts = new int[tileSet.tileSet.Count];
 
@@ -152,9 +162,10 @@ public class MapGenerator : MonoBehaviour
             //the maximum amount of tiles placed
             int tempStop = tileSet.maxTileCount;
             int roomsPlaced = 0;
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             while(openDoors.Count > 0)
             {
-                
+                sw.Start();
                 if(GenerateRoom(0, openDoors, myMap.rooms, tileSet, tileSet.minTileCount < myMap.rooms.Count && !endingMade, out bool usedExit, ref roomUsedCounts, roomsPlaced))
                 {
                     if(usedExit)
@@ -175,8 +186,13 @@ public class MapGenerator : MonoBehaviour
                 {
                     break;
                 }
-                myMap.progress = roomsPlaced/(tileSet.maxTileCount+5f);//add 5 to have head room for future parts.
-                yield return myMap;
+                myMap.progress = (float)roomsPlaced/(tileSet.maxTileCount)*0.9f;//add 5 to have head room for future parts.
+                Debug.Log(sw.ElapsedMilliseconds);
+                if(sw.ElapsedMilliseconds >= 40)
+                {
+                    sw.Reset();
+                    yield return myMap;
+                }
             }
         }
         bool validMap = true;
@@ -189,10 +205,12 @@ public class MapGenerator : MonoBehaviour
 
         openDoors.AddRange(blockedDoors);
         blockedDoors.Clear();
-
+        float cOpenDoors = openDoors.Count;
         //combine doors that are in the same place
         while(openDoors.Count > 1)
         {
+            myMap.progress = 0.9f+(1-(openDoors.Count/cOpenDoors))*0.09f;
+            yield return myMap;
             bool foundOne = false;
             for(int i = 1; i < openDoors.Count; i++)
             {
@@ -247,6 +265,7 @@ public class MapGenerator : MonoBehaviour
         myMap.isDone = true;
         myMap.failed = !validMap;
         yield return myMap;
+        yield break;
     }
 
 
