@@ -349,7 +349,13 @@ class RoomTileMapWindow : EditorWindow
     bool PrefabPreview(RoomTileMap.TileWithState tile, Vector2 pos, out float newRarity, out int newRequired, bool canRequire)
     {
         GUI.Box(new Rect(pos.x, pos.y, 200, 110), "");
-        GUI.Box(new Rect(pos.x, pos.y, 100, 20), tile.tileObject.name);
+        GUIStyle s = GUI.skin.GetStyle("Box");
+        int length = tile.tileObject.name.Length;
+        s.fontSize = length < 13 ? 12 : length < 17 ? 10 : 8;
+        s.alignment = TextAnchor.MiddleCenter;
+        GUI.Box(new Rect(pos.x, pos.y, 100, 20), tile.tileObject.name, s);
+        s.fontSize = 0;
+        s.alignment = TextAnchor.UpperCenter;
 
         if(tile.previewImage)
         {
