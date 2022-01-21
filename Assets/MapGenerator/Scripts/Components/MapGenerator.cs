@@ -165,7 +165,10 @@ public class MapGenerator : MonoBehaviour
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             while(openDoors.Count > 0)
             {
-                sw.Start();
+                if(!sw.IsRunning)
+                {
+                    sw.Start();
+                }
                 if(GenerateRoom(0, openDoors, myMap.rooms, tileSet, tileSet.minTileCount < myMap.rooms.Count && !endingMade, out bool usedExit, ref roomUsedCounts, roomsPlaced))
                 {
                     if(usedExit)
@@ -187,7 +190,6 @@ public class MapGenerator : MonoBehaviour
                     break;
                 }
                 myMap.progress = (float)roomsPlaced/(tileSet.maxTileCount)*0.9f;//add 5 to have head room for future parts.
-                Debug.Log(sw.ElapsedMilliseconds);
                 if(sw.ElapsedMilliseconds >= 40)
                 {
                     sw.Reset();
@@ -207,10 +209,19 @@ public class MapGenerator : MonoBehaviour
         blockedDoors.Clear();
         float cOpenDoors = openDoors.Count;
         //combine doors that are in the same place
+        System.Diagnostics.Stopwatch stop2 = new System.Diagnostics.Stopwatch();
         while(openDoors.Count > 1)
         {
+            if(!stop2.IsRunning)
+            {
+                stop2.Start();
+            }
             myMap.progress = 0.9f+(1-(openDoors.Count/cOpenDoors))*0.09f;
-            yield return myMap;
+            if(stop2.ElapsedMilliseconds >= 40)
+            {
+                stop2.Reset();
+                yield return myMap;
+            }
             bool foundOne = false;
             for(int i = 1; i < openDoors.Count; i++)
             {
