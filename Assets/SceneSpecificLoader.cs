@@ -39,13 +39,13 @@ public class SceneSpecificLoader : MonoBehaviour
            }
            isDone = theMap.isDone;
         }    
-        if(isDone)
-        {
-            startingCam.GetComponent<AudioListener>().enabled = true;
-            startingCam.enabled = true;
-            this.enabled = false;
-        }
 
+    }
+    public void OnDone()
+    {
+        startingCam.GetComponent<AudioListener>().enabled = true;
+        startingCam.enabled = true;
+        this.enabled = false;
     }
 
 }

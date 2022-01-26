@@ -60,5 +60,5 @@ MonoBehaviour:
   allowRotation: 1
   useRB2D: 1
   maxOverlap: 0.1
-  maxTileCount: 100
-  minTileCount: 90
+  maxTileCount: 300
+  minTileCount: 150
