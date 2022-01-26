@@ -190,7 +190,7 @@ public class MapGenerator : MonoBehaviour
                     break;
                 }
                 myMap.progress = (float)roomsPlaced/(tileSet.maxTileCount)*0.9f;//add 5 to have head room for future parts.
-                if(sw.ElapsedMilliseconds >= 40)
+                if(sw.ElapsedMilliseconds >= 30)
                 {
                     sw.Reset();
                     yield return myMap;
