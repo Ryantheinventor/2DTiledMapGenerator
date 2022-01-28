@@ -13,13 +13,20 @@ public class SceneSpecificLoader : MonoBehaviour
 
     [HideInInspector]
     public bool isDone = false;
+    public GameObject playerPrefab;
+    public Vector3 spawnPos = new Vector3();
 
     CoroutineData cd = null;
 
+
     void Start() 
     {
-        startingCam.enabled = false;
-        startingCam.GetComponent<AudioListener>().enabled = false;
+        if(startingCam)
+        {
+            startingCam.enabled = false;
+            startingCam.GetComponent<AudioListener>().enabled = false;  
+        }
+        
         cd = new CoroutineData(this, mapGenerator.GenerateMapAsync(mapGenerator.tileSetData));
     }
 
@@ -43,9 +50,16 @@ public class SceneSpecificLoader : MonoBehaviour
     }
     public void OnDone()
     {
-        startingCam.GetComponent<AudioListener>().enabled = true;
-        startingCam.enabled = true;
+        if(startingCam)
+        {
+            startingCam.GetComponent<AudioListener>().enabled = true;
+            startingCam.enabled = true;
+        }
         this.enabled = false;
+        if(playerPrefab)
+        {
+            GameObject newPlayer = Instantiate(playerPrefab);
+            newPlayer.transform.position = spawnPos;
+        }
     }
-
 }

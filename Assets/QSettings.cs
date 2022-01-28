@@ -6,7 +6,8 @@ public class QSettings : MonoBehaviour
 {
     private void Start() 
     {
-        Screen.SetResolution(1600, 900, FullScreenMode.ExclusiveFullScreen, 200);
-        QualitySettings.vSyncCount = 1;
+        Screen.SetResolution(1600, 900, FullScreenMode.FullScreenWindow, 200);
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 144;
     }
 }

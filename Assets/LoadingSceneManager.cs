@@ -51,7 +51,7 @@ public class LoadingSceneManager : MonoBehaviour
 
     void Update() 
     {
-        displayProgress = Mathf.Lerp(displayProgress, progress, Time.deltaTime);
+        displayProgress = Mathf.Lerp(displayProgress, progress, 3 * Time.deltaTime);
         barRect.sizeDelta = new Vector2(displayProgress * barWidth, barRect.sizeDelta.y);    
         circleRect.eulerAngles += new Vector3(0,0,-90 * Time.deltaTime);
         circleImage.fillAmount = displayProgress;
