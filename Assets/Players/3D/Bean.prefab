@@ -178,7 +178,6 @@ GameObject:
   m_Component:
   - component: {fileID: 670451441}
   - component: {fileID: 670451443}
-  - component: {fileID: 670451442}
   m_Layer: 6
   m_Name: MinimapCam
   m_TagString: Untagged
@@ -243,14 +242,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &670451442
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 670451440}
-  m_Enabled: 1
 --- !u!1 &763647052
 GameObject:
   m_ObjectHideFlags: 0
@@ -672,7 +663,7 @@ GameObject:
   - component: {fileID: 3237662348420389066}
   m_Layer: 0
   m_Name: Bean
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
