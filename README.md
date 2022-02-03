@@ -12,7 +12,7 @@ ___
 - [Room Tile Setup](#RoomTileSetup)
 - [Tile-Set Setup](#TileSetSetup)
 - [Basic Scene Setup](#BasicSceneSetup)
-- [API](#BasicSceneSetup)
+- [API](#API)
 
 ___
 <a name ="RoomTileSetup"></a>
