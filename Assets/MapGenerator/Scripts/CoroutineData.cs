@@ -7,7 +7,6 @@ public class CoroutineData
     public Coroutine coroutine {get; private set;}
     public object result;
     private IEnumerator target;
-
     public CoroutineData(MonoBehaviour owner, IEnumerator target)
     {
         this.target = target;
@@ -22,6 +21,4 @@ public class CoroutineData
             yield return result;
         }
     }
-
-
 }

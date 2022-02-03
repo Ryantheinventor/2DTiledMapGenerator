@@ -52,7 +52,10 @@ public class MapGenerator : MonoBehaviour
     {
         if(generateOnStart)
         {
-            GenerateMap(tileSetData, out mgDoorways, out mgPlacedRooms, 1000, true);
+            Map mapData;
+            GenerateMap(tileSetData, out mapData, 1000, true);
+            mgPlacedRooms = mapData.rooms;
+            mgDoorways = mapData.doorways;
         }
     }
 
@@ -65,7 +68,7 @@ public class MapGenerator : MonoBehaviour
     ///</returns>
     public bool GenerateMap(RoomTileMap tileSet, int maxTries = 100, bool enableDebug = false)
     {   
-        return GenerateMap(tileSet, out List<DoorLocation> doorways, out List<PlacedRoomData> placedRooms);        
+        return GenerateMap(tileSet, out Map mapData);        
     }
 
 
@@ -75,7 +78,7 @@ public class MapGenerator : MonoBehaviour
     ///<returns>
     /// Returns true when the map was fully generated, returns false otherwise.
     ///</returns>
-    public bool GenerateMap(RoomTileMap tileSet, out List<DoorLocation> doorways, out List<PlacedRoomData> placedRooms, int maxTries = 100, bool enableDebug = false)
+    public bool GenerateMap(RoomTileMap tileSet, out Map mapData, int maxTries = 100, bool enableDebug = false)
     {   
         IEnumerator target = GenerateMapAsync(tileSet, maxTries, enableDebug);
         
@@ -86,9 +89,7 @@ public class MapGenerator : MonoBehaviour
                 break;
             }
         }
-        Map mapData = ((Map)target.Current);
-        doorways = mapData.doorways;
-        placedRooms = mapData.rooms;
+        mapData = ((Map)target.Current);
         return !((Map)target.Current).failed;
         //return GenerateMap(tileSet, out doorways, out placedRooms, maxTries, enableDebug);
     }
