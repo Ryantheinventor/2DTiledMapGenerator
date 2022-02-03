@@ -74,3 +74,10 @@ ___
 <a name ="BasicSceneSetup"></a>
 
 ## **Basic Scene Setup:**
+### **Step 1:** Create new gameobject at world center
+![Image](/ExtraData/NewGOSS.png)  
+### **Step 2:** Add the Map Generator component to the new object
+![Image](/ExtraData/AddMapGenSS.png)  
+### **Step 3:** Set the Tile Set Data to the tile set you wish to use
+![Image](/ExtraData/SetTileSetDataSS.png)  
+If every thing was done correctly when you press play you should see the generated map once it finishes loading. (By default the generator will generate durring the start call, to change this you must use the API)
