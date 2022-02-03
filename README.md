@@ -3,7 +3,6 @@
 
 # **Random Map Generator**
 TODO:
-- Add assembly def files
 - Add API documentation
 - <b>*Insert Summary Here*</b>
 
