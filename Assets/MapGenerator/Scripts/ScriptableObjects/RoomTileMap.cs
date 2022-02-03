@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-[CreateAssetMenu(fileName = "RoomTileMap", menuName = "RandomMapGenerator/RoomTileMap", order = 0)]
+[CreateAssetMenu(fileName = "RoomTileSet", menuName = "RandomMapGenerator/RoomTileSet", order = 0)]
 public class RoomTileMap : ScriptableObject 
 {
     [HideInInspector]
