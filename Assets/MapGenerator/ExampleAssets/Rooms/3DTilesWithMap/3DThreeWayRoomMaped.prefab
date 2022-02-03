@@ -904,7 +904,7 @@ GameObject:
   - component: {fileID: 5777523212941494364}
   - component: {fileID: 116602575395612383}
   m_Layer: 0
-  m_Name: 3DThreeWayRoom
+  m_Name: 3DThreeWayRoomMaped
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

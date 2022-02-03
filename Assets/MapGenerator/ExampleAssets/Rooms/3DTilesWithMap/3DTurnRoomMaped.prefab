@@ -1544,7 +1544,7 @@ GameObject:
   - component: {fileID: 5609209083907812408}
   - component: {fileID: 5599368269491523492}
   m_Layer: 0
-  m_Name: 3DTurnRoom
+  m_Name: 3DTurnRoomMaped
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

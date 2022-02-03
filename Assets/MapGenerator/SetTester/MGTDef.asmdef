@@ -1,0 +1,16 @@
+{
+    "name": "MGTDef",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d1766f92933e18acf8a29a982cb4f2ff"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

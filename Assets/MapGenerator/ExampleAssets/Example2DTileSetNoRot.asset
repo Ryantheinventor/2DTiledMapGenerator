@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 722279adc464b468fbccf98830141117, type: 3}
-  m_Name: ExampleRoomTileMap
+  m_Name: Example2DTileSetNoRot
   m_EditorClassIdentifier: 
   startTiles:
   - tileObject: {fileID: 137628699757244116, guid: 3e690033054bbc710b2ce34bd7fd06e3, type: 3}
@@ -22,7 +22,7 @@ MonoBehaviour:
   - tileObject: {fileID: 5294487868799462609, guid: 516ff99b86109b4cca179643d3d74141, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 5
+    rarity: 1
     requiredUse: 0
   doorCaps:
   - tileObject: {fileID: 821166952359583552, guid: 8730a839b314dafa7a55e011012264c9, type: 3}
@@ -36,17 +36,7 @@ MonoBehaviour:
     previewImage: {fileID: 0}
     rarity: 1
     requiredUse: 0
-  - tileObject: {fileID: 3813112434075686699, guid: 525f6d352dbc7e07da392a7ceb6a0d2f, type: 3}
-    tileUsable: 1
-    previewImage: {fileID: 0}
-    rarity: 3
-    requiredUse: 0
   - tileObject: {fileID: 6394094700702064275, guid: 1337e141291aee9bca494b4bc5136712, type: 3}
-    tileUsable: 1
-    previewImage: {fileID: 0}
-    rarity: 1
-    requiredUse: 0
-  - tileObject: {fileID: 244629144146572401, guid: c41fc2af0b124c5b2b5b85951c1cd8a4, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
     rarity: 1
@@ -54,11 +44,16 @@ MonoBehaviour:
   - tileObject: {fileID: 5670105543692139099, guid: 20f24686b3abf14849d8368b7f4d6100, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 3
+    rarity: 1
+    requiredUse: 0
+  - tileObject: {fileID: 3813112434075686699, guid: 525f6d352dbc7e07da392a7ceb6a0d2f, type: 3}
+    tileUsable: 1
+    previewImage: {fileID: 0}
+    rarity: 1
     requiredUse: 0
   axisMode: 0
-  allowRotation: 1
+  allowRotation: 0
   useRB2D: 1
   maxOverlap: 0.1
-  maxTileCount: 300
-  minTileCount: 150
+  maxTileCount: 100
+  minTileCount: 20
