@@ -453,17 +453,14 @@ public class MapGenerator : MonoBehaviour
                 //do 2d collision checks
                 foreach(Collider2D c in td.colliders2D)
                 {
-                    List<Collider2D> results = new List<Collider2D>();
-                    c.OverlapCollider(new ContactFilter2D(), results);
+                    List<(Collider2D, float)> results = GetCollisions(c, placedRooms);
                     if(results.Count > 0)
                     {
-                        //check if the any of the overlapping colliders are on a diferent object, if so then do not spawn the tile
-                        //this is slow af and could use an optimization pass
-                        foreach(Collider2D c2 in results)
+                        foreach((Collider2D, float) c2 in results)
                         {
-                            if(!td.colliders2D.Contains(c2))
+                            if(!td.colliders2D.Contains(c2.Item1))
                             {
-                                if(Physics2D.Distance(c,c2).distance < -tileSet.maxOverlap)
+                                if(Mathf.Abs(c2.Item2) > tileSet.maxOverlap)
                                 {
                                     return false;
                                 }
@@ -661,6 +658,23 @@ public class MapGenerator : MonoBehaviour
                                            out Vector3 direction, out float dist))
                 {
                     results.Add((collider2, dist));
+                }
+            }
+        }
+        return results;
+    }
+
+    private List<(Collider2D, float)> GetCollisions(Collider2D collider1, List<PlacedRoomData> rooms)
+    {
+        List<(Collider2D, float)> results = new List<(Collider2D, float)>();
+        foreach(PlacedRoomData prd in rooms)
+        {
+            foreach(Collider2D collider2 in prd.roomObject.GetComponentInParent<TileData>().colliders2D)
+            {
+                ColliderDistance2D cd = Physics2D.Distance(collider1,collider2);
+                if(cd.isOverlapped)
+                {
+                    results.Add((collider2, -cd.distance));
                 }
             }
         }
