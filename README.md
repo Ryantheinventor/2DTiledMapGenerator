@@ -4,15 +4,17 @@
 # **Random Map Generator**
 TODO:
 - Add assembly def files
-  
-<b>*Insert Summary Here*</b>
+- Add API documentation
+- <b>*Insert Summary Here*</b>
+
 
 ___
 ## **Contents**
-### [Room Tile Setup](#RoomTileSetup)
-### [Tile-Set Setup](#TileSetSetup)
-### [Basic Scene Setup](#BasicSceneSetup)
+- [Room Tile Setup](#RoomTileSetup)
+- [Tile-Set Setup](#TileSetSetup)
+- [Basic Scene Setup](#BasicSceneSetup)
 
+___
 <a name ="RoomTileSetup"></a>
 
 ## **Room Tile Setup:**
@@ -66,7 +68,7 @@ Open the window by double clicking on the asset.
 
 ### **Step 5:** Set room specific settings
 ![Image](/ExtraData/EditRoomsSS.png)
-- Weight is the likley hood that a room will be chosen when spawning a room, the higher the weight the more often the room will spawn.
+- Weight determines the likley hood that a room will be chosen when spawning a room, the higher the weight the more often the room will spawn.
 - Required will force exactly the set number of that room to be spawned. If required is no set then the room can be used any number of times.
 ___
 
