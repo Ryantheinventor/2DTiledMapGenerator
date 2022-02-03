@@ -2,10 +2,9 @@
 
 
 # **Random Map Generator**
-TODO:
-- Add API documentation
-- <b>*Insert Summary Here*</b>
+This system is designed to generate a random map based off of a given tile set. Allowing for required, and rotating, rooms.
 
+NOTE: This system assumes all doors are at the same height.
 
 ___
 ## **Contents**
@@ -64,12 +63,12 @@ Open the window by double clicking on the asset.
 - Minimum Tiles Per Map is the number of rooms generated before the ending tiles can be spawned.
 - Maximum Tiles per Map is the maximum number of tiles the map will generate.
 
-<a name="abcd"></a>*Current Mode also determines how door positions are handled, as long as this setting matches the equivelent on all your tiles then it should work fine.
+<a name="abcd"></a>*Current Mode also determines how door positions are handled, as long as this setting matches the equivalent on all your tiles then it should work fine.
 
 ### **Step 5:** Set room specific settings
 ![Image](/ExtraData/EditRoomsSS.png)
-- Weight determines the likley hood that a room will be chosen when spawning a room, the higher the weight the more often the room will spawn.
-- Required will force exactly the set number of that room to be spawned. If required is no set then the room can be used any number of times.
+- Weight determines the likelihood that a room will be chosen when spawning a room, the higher the weight the more often the room will spawn.
+- Required will force exactly the set number of that room to be spawned. If required is not set then the room can be used any number of times.
 ___
 
 <a name ="BasicSceneSetup"></a>
@@ -81,7 +80,7 @@ ___
 ![Image](/ExtraData/AddMapGenSS.png)  
 ### **Step 3:** Set the Tile Set Data to the tile set you wish to use
 ![Image](/ExtraData/SetTileSetDataSS.png)  
-If every thing was done correctly when you press play you should see the generated map once it finishes loading. (By default the generator will generate durring the start call, to change this you must use the API)  
+If every thing was done correctly when you press play you should see the generated map once it finishes loading. (By default the generator will generate during the start call, to change this you must use the API)  
 
 ___
 
@@ -99,8 +98,6 @@ GenerateMap and keep data for future use.
 ```c#
 public bool GenerateMap(RoomTileMap tileSet, out Map mapData, int maxTries = 100, bool enableDebug = false)
 ```
-
-
 
 
 ### **Generating a map with a coroutine.**
