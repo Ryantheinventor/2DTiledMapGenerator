@@ -12,6 +12,7 @@ ___
 - [Room Tile Setup](#RoomTileSetup)
 - [Tile-Set Setup](#TileSetSetup)
 - [Basic Scene Setup](#BasicSceneSetup)
+- [API](#BasicSceneSetup)
 
 ___
 <a name ="RoomTileSetup"></a>
@@ -80,4 +81,59 @@ ___
 ![Image](/ExtraData/AddMapGenSS.png)  
 ### **Step 3:** Set the Tile Set Data to the tile set you wish to use
 ![Image](/ExtraData/SetTileSetDataSS.png)  
-If every thing was done correctly when you press play you should see the generated map once it finishes loading. (By default the generator will generate durring the start call, to change this you must use the API)
+If every thing was done correctly when you press play you should see the generated map once it finishes loading. (By default the generator will generate durring the start call, to change this you must use the API)  
+
+___
+
+<a name ="API"></a>
+
+## **API:**
+
+### **Generating a map**
+GenerateMap without keeping result data for future use.
+```c#
+GenerateMap(RoomTileMap tileSet, int maxTries = 100, bool enableDebug = false)
+```
+
+GenerateMap and keep data for future use.  
+```c#
+public bool GenerateMap(RoomTileMap tileSet, out Map mapData, int maxTries = 100, bool enableDebug = false)
+```
+
+
+
+
+### **Generating a map with a coroutine.**
+
+#### Coroutine version of GenerateMap:  
+```c#
+public IEnumerator<MapGenerator.Map> GenerateMapAsync(RoomTileMap tileSet, int maxTries = 100, bool enableDebug = false)
+```
+While this is a coroutine it can't be run like a normal coroutine as it needs to return custom data.
+  
+To use this coroutine you will need to setup a MonoBehaviour with the following implementation of the included `CoroutineData` class.  
+#### Basic setup of custom coroutine:
+```c#
+void Start() 
+{    
+    cd = new CoroutineData(this, mapGenerator.GenerateMapAsync(mapGenerator.tileSetData));
+}
+
+void Update() 
+{
+
+    if(cd!=null)
+    {
+        MapGenerator.Map theMap = ((MapGenerator.Map)cd.result);
+        if(theMap.isDone)
+        {
+            Debug.Log("Done Loading Map");
+        }
+        else
+        {
+            Debug.Log(theMap.progress);
+        }
+    }    
+
+}
+```
