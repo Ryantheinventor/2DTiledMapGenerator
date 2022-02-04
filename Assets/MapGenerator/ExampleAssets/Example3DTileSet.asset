@@ -22,13 +22,13 @@ MonoBehaviour:
   - tileObject: {fileID: 3520878922250001581, guid: 84f9af0b4c9caae17ac85c54635e4bd8, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 4
+    rarity: 8
     requiredUse: 0
   doorCaps:
   - tileObject: {fileID: 5268038006492478560, guid: e1e09b3e43c195a339bd8cecf182f31c, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 1
+    rarity: 4
     requiredUse: 0
   tileSet:
   - tileObject: {fileID: 8890337851290767101, guid: 79ae9d101fd8c5ac9a508b8935ef6c45, type: 3}
@@ -64,7 +64,7 @@ MonoBehaviour:
   - tileObject: {fileID: 871067225210147397, guid: ffd5f9bcf34083693ab5c8bb5cfbb008, type: 3}
     tileUsable: 1
     previewImage: {fileID: 0}
-    rarity: 3
+    rarity: 1
     requiredUse: 0
   axisMode: 1
   allowRotation: 1

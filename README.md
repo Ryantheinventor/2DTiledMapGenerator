@@ -134,3 +134,11 @@ void Update()
 
 }
 ```
+
+### **Other data types:**
+- Map
+- PlacedRoomData
+- DoorLocation
+
+
+
