@@ -11,6 +11,7 @@ ___
 - [Room Tile Setup](#RoomTileSetup)
 - [Tile-Set Setup](#TileSetSetup)
 - [Basic Scene Setup](#BasicSceneSetup)
+- [Test Tile Set](#TestTileSet)
 - [API](#API)
 
 ___
@@ -84,6 +85,25 @@ If every thing was done correctly when you press play you should see the generat
 
 ___
 
+<a name ="TestTileSet"></a>
+
+## **Test Tile Set:**
+Included in the package is a 'SetTester' prefab. This prefab supplies the means to test your tile sets to make sure that they can generate valid maps.  
+### **Step 1:** Create a new scene for testing.
+It is recomended to use an otherwise empty scene to perform these tests for the sake of time.  
+### **Step 2:** Add the SetTester prefab to scene.
+The prefab can be found under MapGenerator/SetTester  
+![Image](/ExtraData/SetTesterAddedSS.png)  
+### **Step 3:** Add the asset you want to test.
+Set 'Set To Test' to the tile set you wish to test. You can also set the amount of times it will attempt to make a map.  
+![Image](/ExtraData/AddAssetToSetTestSS.png)  
+### **Step 4** Play and wait.
+Once the component is ready press play and wait for the maps to finish.  
+![Image](/ExtraData/TestRunFinSS.png) 
+### **Step 5** Review results.
+Any map that faild will be left in the scene for you to see how they failed, if the fail rate is below 10% and the maps are failing when small then it should be safe to use as the generation script will handle restarting after a faild map automatically.(up to your set amount of attempts)
+___
+
 <a name ="API"></a>
 
 ## **API:**
@@ -136,9 +156,9 @@ void Update()
 ```
 
 ### **Other data types:**
-- Map
-- PlacedRoomData
-- DoorLocation
+- MapGenerator.Map: Stores the generation progress, and final PlacedRoomData and DoorLocations for a generated map. 
+- MapGenerator.PlacedRoomData: Stores a reference to the placed GameObject as well as it position and rotation.
+- MapGenerator.DoorLocation: Stores the position and rotaion of a door aswell as the doors locked state.
 
 
 

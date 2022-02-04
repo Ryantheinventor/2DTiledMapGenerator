@@ -15,8 +15,6 @@ public class TileData : MonoBehaviour
         public float rotation;
     }
 
-    public Vector2 tileSize = new Vector2(5,5);
-
     [HideInInspector]
     public List<bool> doorsTaken = new List<bool>();
 

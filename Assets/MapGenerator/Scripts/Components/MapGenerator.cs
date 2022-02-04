@@ -18,8 +18,6 @@ public class MapGenerator : MonoBehaviour
     {
         public Vector2 position;
         public float rotation;
-
-        public int roomIndex;
         public bool isLocked;
     }
 
@@ -27,7 +25,6 @@ public class MapGenerator : MonoBehaviour
     {
         public GameObject roomObject;
         public Vector2 position;
-        public Vector2 scale;
         public float rotation;
     }
 
@@ -156,7 +153,7 @@ public class MapGenerator : MonoBehaviour
             TileWithState startingTileData = tileSet.startTiles[Random.Range(0,tileSet.startTiles.Count)];
             float rotation = tileSet.allowRotation ? 90 * Random.Range(0,4) : 0;
             
-            PlaceRoom(startingTileData.tileObject, new Vector2(0,0), rotation, tileSet.axisMode, -1, out List<DoorLocation> newRooms, out PlacedRoomData newRoomData, 0, tileSet.useRB2D);
+            PlaceRoom(startingTileData.tileObject, new Vector2(0,0), rotation, tileSet.axisMode, -1, out List<DoorLocation> newRooms, out PlacedRoomData newRoomData, tileSet.useRB2D);
             myMap.rooms.Add(newRoomData);
             openDoors.AddRange(newRooms);
             
@@ -269,7 +266,7 @@ public class MapGenerator : MonoBehaviour
             {
                 int doorIndex = SkewedNum(doorProbabilities);
                 GameObject newDoorFab = tileSet.doorCaps[doorIndex].tileObject;
-                PlaceRoom(newDoorFab, dl.position, dl.rotation, tileSet.axisMode, 0, out List<DoorLocation> newOpenDoors, out PlacedRoomData newDoor, 0, tileSet.useRB2D);
+                PlaceRoom(newDoorFab, dl.position, dl.rotation, tileSet.axisMode, 0, out List<DoorLocation> newOpenDoors, out PlacedRoomData newDoor, tileSet.useRB2D);
             }
             
         }
@@ -343,10 +340,16 @@ public class MapGenerator : MonoBehaviour
             
             //if the tile is over the tileSet size then it is in endTiles
             TileWithState tws = roomIndex < tileSet.tileSet.Count ? tileSet.tileSet[roomIndex] : tileSet.endTiles[roomIndex-tileSet.tileSet.Count];
-
+            if(placedRooms.Count <= tileSet.maxTileCount / 6)
+            {
+                if(tws.tileObject.GetComponent<TileData>().doorPositions.Count <= 1)
+                {
+                    continue;
+                }
+            }
             roomFits = CheckRoomFits(openDoors[doorIndex], tws, placedRooms, out Vector2 position, 
                           out float rotation, out PlacedRoomData newRoom, out List<DoorLocation> newDoors, 
-                          tileSet, openDoors[doorIndex].roomIndex, out GameObject placedRoom);
+                          tileSet, out GameObject placedRoom);
             if(!roomFits)
             {
                 if(placedRoom)
@@ -364,8 +367,6 @@ public class MapGenerator : MonoBehaviour
                     roomUsedCounts[roomIndex]++;
                 }
             }
-            
-
         }
         return true;
 
@@ -379,7 +380,7 @@ public class MapGenerator : MonoBehaviour
     /// true if the room fits
     /// </returns>
     private bool CheckRoomFits(DoorLocation targetDoor, TileWithState tile, List<PlacedRoomData> placedRooms, out Vector2 position, 
-                               out float rotation, out PlacedRoomData newRoom, out List<DoorLocation> newDoors, RoomTileMap tileSet, int roomIndex, out GameObject placedRoom)
+                               out float rotation, out PlacedRoomData newRoom, out List<DoorLocation> newDoors, RoomTileMap tileSet, out GameObject placedRoom)
     {
         newRoom = new PlacedRoomData();
         newDoors = new List<DoorLocation>();
@@ -445,7 +446,7 @@ public class MapGenerator : MonoBehaviour
             
 
             //do collision check here
-            placedRoom = PlaceRoom(tile.tileObject, position, rotation, tileSet.axisMode, doorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData newRoomData, roomIndex, tileSet.useRB2D);
+            placedRoom = PlaceRoom(tile.tileObject, position, rotation, tileSet.axisMode, doorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData newRoomData, tileSet.useRB2D);
             newDoors.AddRange(newOpenDoors);
             newRoom = newRoomData;
             TileData td = placedRoom.GetComponent<TileData>();
@@ -506,7 +507,7 @@ public class MapGenerator : MonoBehaviour
     /// Places a room into the world at a set position and rotation.
     /// </summary>
     private GameObject PlaceRoom(GameObject room, Vector2 position, float rotation, AxisMode axisMode, 
-                                 int ignoreDoorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData placedRoom, int roomIndex, bool useRB2D)
+                                 int ignoreDoorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData placedRoom, bool useRB2D)
     {
         GameObject tileObject = Instantiate(room, transform);
         switch(axisMode)
@@ -545,10 +546,10 @@ public class MapGenerator : MonoBehaviour
                     rotDoorPosV3 = Quaternion.Euler(0,0,rotation) * new Vector3(td.doorPositions[i].position.x, td.doorPositions[i].position.y, 0);
                     mapSpaceDoorPos = new Vector2(rotDoorPosV3.x,rotDoorPosV3.y) + position;
                 }
-                newOpenDoors.Add(new DoorLocation(){ position = mapSpaceDoorPos, rotation = DegWrap(td.doorPositions[i].rotation + rotation), roomIndex = roomIndex });
+                newOpenDoors.Add(new DoorLocation(){ position = mapSpaceDoorPos, rotation = DegWrap(td.doorPositions[i].rotation + rotation)});
             }
         }
-        placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, scale = td.tileSize, roomObject = tileObject };
+        placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, roomObject = tileObject };
         return tileObject;
     }
 
