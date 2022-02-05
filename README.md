@@ -108,10 +108,10 @@ ___
 
 ## **API:**
 
-### **Generating a map**
+### **Generating a map using `MapGenerator.GenerateMap()`**
 GenerateMap without keeping result data for future use.
 ```c#
-GenerateMap(RoomTileMap tileSet, int maxTries = 100, bool enableDebug = false)
+public bool GenerateMap(RoomTileMap tileSet, int maxTries = 100, bool enableDebug = false)
 ```
 
 GenerateMap and keep data for future use.  
@@ -120,7 +120,7 @@ public bool GenerateMap(RoomTileMap tileSet, out Map mapData, int maxTries = 100
 ```
 
 
-### **Generating a map with a coroutine.**
+### **Generating a map with `MapGenerator.GenerateMapAsync()`**
 
 #### Coroutine version of GenerateMap:  
 ```c#
