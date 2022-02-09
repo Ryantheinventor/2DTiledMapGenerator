@@ -237,7 +237,7 @@ class RoomTileMapWindow : EditorWindow
     {
         if(tileMap)
         {
-            AssetDatabase.SaveAssetIfDirty(tileMap);
+            SaveAsset(tileMap);
         }
     }
 
@@ -253,8 +253,19 @@ class RoomTileMapWindow : EditorWindow
     {
         if(tileMap)
         {
-            AssetDatabase.SaveAssetIfDirty(tileMap);
+            SaveAsset(tileMap);
         }
+    }
+
+
+    void SaveAsset(UnityEngine.Object myAsset)
+    {
+        // AssetDatabase.SaveAssetIfDirty was added in Unity 2020.3.16
+#if UNITY_2020_3_OR_NEWER && ! (UNITY_2020_3_0 || UNITY_2020_3_1 || UNITY_2020_3_2 || UNITY_2020_3_3 || UNITY_2020_3_4 || UNITY_2020_3_5 || UNITY_2020_3_6 || UNITY_2020_3_7 || UNITY_2020_3_8 || UNITY_2020_3_9 || UNITY_2020_3_10 || UNITY_2020_3_11 || UNITY_2020_3_12 || UNITY_2020_3_13 || UNITY_2020_3_14 || UNITY_2020_3_15)
+        AssetDatabase.SaveAssetIfDirty(myAsset);
+#else
+        AssetDatabase.SaveAssets();// <- as far as I am aware this is the only fix and I hate that it will save everything.
+#endif
     }
 
     /// <summary>
