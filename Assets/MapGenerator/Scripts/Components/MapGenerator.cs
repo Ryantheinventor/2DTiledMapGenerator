@@ -17,18 +17,21 @@ namespace RTMG
         private List<DoorLocation> mgDoorways = new List<DoorLocation>();
         private List<PlacedRoomData> mgPlacedRooms = new List<PlacedRoomData>();
 
-        public struct DoorLocation
+        public class DoorLocation
         {
             public Vector2 position;
             public float rotation;
             public bool isLocked;
+            public List<PlacedRoomData> myRooms;
         }
 
-        public struct PlacedRoomData
+        public class PlacedRoomData
         {
             public GameObject roomObject;
             public Vector2 position;
             public float rotation;
+            public List<DoorLocation> myDoors;
+            public List<PlacedRoomData> adjacentRooms = new List<PlacedRoomData>();
         }
 
         public class Map
@@ -231,6 +234,17 @@ namespace RTMG
                         if(AngleDiff(openDoors[0].rotation, openDoors[i].rotation) > 0.1f)
                         {
                             myMap.doorways.Add(openDoors[0]);
+
+
+                            openDoors[0].myRooms.AddRange(openDoors[i].myRooms);
+                            
+                            foreach(PlacedRoomData pr in openDoors[i].myRooms)
+                            {
+                                pr.myDoors.Remove(openDoors[i]);
+                                pr.myDoors.Add(openDoors[0]);
+                            }
+
+
                             openDoors.RemoveAt(i);
                             openDoors.RemoveAt(0);
                             foundOne = true;
@@ -256,6 +270,21 @@ namespace RTMG
                 myMap.doorways.Add(d);
             }
             openDoors.Clear();
+
+
+            foreach(PlacedRoomData pr in myMap.rooms)
+            {
+                foreach(DoorLocation dl in pr.myDoors)
+                {
+                    foreach(PlacedRoomData pr2 in dl.myRooms)
+                    {
+                        if(pr2 != pr)
+                        {
+                            pr.adjacentRooms.Add(pr2);
+                        }
+                    }
+                }
+            }
 
             //add locked door objects to doorways that do not lead to anything
             float[] doorProbabilities = new float[tileSet.doorCaps.Count];
@@ -449,9 +478,8 @@ namespace RTMG
                 
 
                 //do collision check here
-                placedRoom = PlaceRoom(tile.tileObject, position, rotation, tileSet.axisMode, doorIndex, out List<DoorLocation> newOpenDoors, out PlacedRoomData newRoomData, tileSet.useRB2D);
+                placedRoom = PlaceRoom(tile.tileObject, position, rotation, tileSet.axisMode, doorIndex, out List<DoorLocation> newOpenDoors, out newRoom, tileSet.useRB2D);
                 newDoors.AddRange(newOpenDoors);
-                newRoom = newRoomData;
                 TileData td = placedRoom.GetComponent<TileData>();
                 if(td.colliders2D.Count > 0)
                 {
@@ -474,6 +502,8 @@ namespace RTMG
                             
                         }
                     }
+                    newRoom.myDoors.Add(targetDoor);
+                    targetDoor.myRooms.Add(newRoom);
                     return true;
                 }
                 else 
@@ -496,6 +526,8 @@ namespace RTMG
                             }
                         }
                     }
+                    newRoom.myDoors.Add(targetDoor);
+                    targetDoor.myRooms.Add(newRoom);
                     return true;
                 }
             }
@@ -552,7 +584,13 @@ namespace RTMG
                     newOpenDoors.Add(new DoorLocation(){ position = mapSpaceDoorPos, rotation = DegWrap(td.doorPositions[i].rotation + rotation)});
                 }
             }
-            placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, roomObject = tileObject };
+            
+            placedRoom = new PlacedRoomData(){ position = position, rotation = rotation, roomObject = tileObject, myDoors = newOpenDoors};
+            for(int i = 0; i < newOpenDoors.Count; i++)
+            {
+                newOpenDoors[i].myRooms = new List<PlacedRoomData>();
+                newOpenDoors[i].myRooms.Add(placedRoom);
+            }
             return tileObject;
         }
 

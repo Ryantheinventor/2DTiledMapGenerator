@@ -147,7 +147,6 @@ MonoBehaviour:
   doorPositions:
   - position: {x: 0, y: -5}
     rotation: 90
-  tileSize: {x: 5, y: 5}
   doorsTaken: 
   gizmoAxisMode: 1
   colliders3D:

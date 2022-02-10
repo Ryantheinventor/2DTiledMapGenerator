@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 197802427}
   - component: {fileID: 197802426}
   - component: {fileID: 197802425}
+  - component: {fileID: 197802428}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -185,8 +186,20 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &197802428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 197802424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5cf6e47ad8c69a1ba1c5ebfcc49f0c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &866779086
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -204,7 +217,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2149355789477755786, guid: 94de016f6c7f19073b4d9dacb1d20dec, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2149355789477755786, guid: 94de016f6c7f19073b4d9dacb1d20dec, type: 3}
       propertyPath: m_AnchorMax.x

@@ -70,6 +70,7 @@ namespace RTMGEditor
         /// </summary>
         void OnGUI() 
         {
+            CleanNulls();
             totalHeight = 0;
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos,true,false);
             GUILayout.Label("Tile Map", EditorStyles.boldLabel);
@@ -235,6 +236,40 @@ namespace RTMGEditor
             }
             EditorGUILayout.EndScrollView();
         }
+
+
+        void CleanNulls()
+        {
+            for(int i = tileMap.startTiles.Count - 1; i >= 0; i--)
+            {
+                if(!tileMap.startTiles[i].tileObject)
+                {
+                    tileMap.startTiles.RemoveAt(i);
+                }
+            }
+            for(int i = tileMap.endTiles.Count - 1; i >= 0; i--)
+            {
+                if(!tileMap.endTiles[i].tileObject)
+                {
+                    tileMap.endTiles.RemoveAt(i);
+                }
+            }
+            for(int i = tileMap.doorCaps.Count - 1; i >= 0; i--)
+            {
+                if(!tileMap.doorCaps[i].tileObject)
+                {
+                    tileMap.doorCaps.RemoveAt(i);
+                }
+            }
+            for(int i = tileMap.tileSet.Count - 1; i >= 0; i--)
+            {
+                if(!tileMap.tileSet[i].tileObject)
+                {
+                    tileMap.tileSet.RemoveAt(i);
+                }
+            }
+        }
+
 
         void OnDestroy() 
         {

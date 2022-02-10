@@ -6,7 +6,7 @@ using RTMG;
 
 namespace RTMGEditor
 {
-    [CustomEditor(typeof(RTMG.TileData))]
+    [CustomEditor(typeof(TileData))]
     public class TileDataInspector : Editor
     {
         private TileData script;
@@ -18,9 +18,11 @@ namespace RTMGEditor
 
         public override void OnInspectorGUI() 
         {
+            EditorGUI.BeginChangeCheck();
             base.OnInspectorGUI();
             if(GUILayout.Button("Detect colliders"))
             {
+                Undo.RecordObject(script, "Detected Colliders");
                 script.colliders2D.Clear();
                 script.colliders3D.Clear();
                 Collider[] collidersFound3D = script.GetComponentsInChildren<Collider>();
@@ -35,14 +37,15 @@ namespace RTMGEditor
                     script.colliders3D = new List<Collider>(collidersFound3D);
                     script.gizmoAxisMode = RoomTileMap.AxisMode.IS3D;
                 }
-                
+                PrefabUtility.RecordPrefabInstancePropertyModifications(script);
             }
 
 
             for(int i = 0; i < script.doorPositions.Count; i++)
             {
                 script.doorPositions[i] = new TileData.DoorValues(){ rotation = MapGenerator.DegWrap(script.doorPositions[i].rotation), position = script.doorPositions[i].position};
-            }
+            } 
+
 
             
         }

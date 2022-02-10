@@ -18,7 +18,7 @@ public class SceneSpecificLoader : MonoBehaviour
     public Vector3 spawnPos = new Vector3();
 
     CoroutineData cd = null;
-
+    public MapGenerator.Map map;
 
     void Start() 
     {
@@ -46,8 +46,8 @@ public class SceneSpecificLoader : MonoBehaviour
                progress = theMap.progress;
            }
            isDone = theMap.isDone;
+           map = theMap;
         }    
-
     }
     public void OnDone()
     {
