@@ -163,8 +163,8 @@ void Update()
 
 ### **Other data types:**
 - MapGenerator.Map: Stores the generation progress, and final PlacedRoomData and DoorLocations for a generated map. 
-- MapGenerator.PlacedRoomData: Stores a reference to the placed GameObject as well as it position and rotation.
-- MapGenerator.DoorLocation: Stores the position and rotaion of a door aswell as the doors locked state.
+- MapGenerator.PlacedRoomData: Stores a reference to the placed GameObject as well as it position and rotation, also stores connected rooms and doors.
+- MapGenerator.DoorLocation: Stores the position and rotaion of a door aswell as the doors locked state, also stores connected rooms.
 
 
 
