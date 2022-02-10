@@ -4,9 +4,9 @@
 # **Random Map Generator**
 This system is designed to generate a random map based off of a given tile set. Allowing for required, and rotating, rooms.
 
-NOTE: This system assumes all doors are at the same height.
-
 Unity 2020.3.16 or newer is recomended.
+
+NOTE: This system assumes all doors are at the same height.
 ___
 ## **Contents**
 - [Room Tile Setup](#RoomTileSetup)
@@ -108,6 +108,11 @@ ___
 <a name ="API"></a>
 
 ## **API:**
+
+You must use the RTMG namespace for access to the api.
+```c#
+using RTMG;
+```
 
 ### **Generating a map using `MapGenerator.GenerateMap()`**
 GenerateMap without keeping result data for future use.

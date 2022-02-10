@@ -2,23 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CoroutineData
+namespace RTMG
 {
-    public Coroutine coroutine {get; private set;}
-    public object result;
-    private IEnumerator target;
-    public CoroutineData(MonoBehaviour owner, IEnumerator target)
+    public class CoroutineData
     {
-        this.target = target;
-        this.coroutine = owner.StartCoroutine(Run());
-    }
-
-    private IEnumerator Run()
-    {
-        while(target.MoveNext())
+        public Coroutine coroutine {get; private set;}
+        public object result;
+        private IEnumerator target;
+        public CoroutineData(MonoBehaviour owner, IEnumerator target)
         {
-            result = target.Current;
-            yield return result;
+            this.target = target;
+            this.coroutine = owner.StartCoroutine(Run());
+        }
+
+        private IEnumerator Run()
+        {
+            while(target.MoveNext())
+            {
+                result = target.Current;
+                yield return result;
+            }
         }
     }
 }
