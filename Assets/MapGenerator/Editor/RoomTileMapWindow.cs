@@ -70,7 +70,10 @@ namespace RTMGEditor
         /// </summary>
         void OnGUI() 
         {
-            CleanNulls();
+            if(tileMap != null)
+            {
+                CleanNulls();
+            }
             totalHeight = 0;
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos,true,false);
             GUILayout.Label("Tile Map", EditorStyles.boldLabel);
