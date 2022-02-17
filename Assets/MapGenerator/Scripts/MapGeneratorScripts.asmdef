@@ -1,6 +1,6 @@
 {
     "name": "MGDef",
-    "rootNamespace": "",
+    "rootNamespace": "RTMG",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
