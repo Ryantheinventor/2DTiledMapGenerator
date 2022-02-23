@@ -206,7 +206,8 @@ namespace RTMGEditor
 
                 #region other settings
                 GUILayout.Label("Other Settings:", EditorStyles.boldLabel);
-                string modeButtonText = "Current Mode: ";
+                totalHeight += 20;
+                string modeButtonText = "Map Layout Mode:";
                 switch(tileMap.axisMode)
                 {
                     case RoomTileMap.AxisMode.IS2D:
@@ -216,7 +217,9 @@ namespace RTMGEditor
                         modeButtonText += "3D";
                         break;
                 }
-                if(GUILayout.Button(modeButtonText))
+                
+                
+                if(GUI.Button(new Rect(0,totalHeight,400,20), modeButtonText))
                 {
                     switch(tileMap.axisMode)
                     {
@@ -228,6 +231,8 @@ namespace RTMGEditor
                             break;
                     }
                 }
+                totalHeight += 20;
+                EditorGUILayout.Space(20);
                 tileMap.allowRotation = EditorGUILayout.Toggle("Allow Rotation", tileMap.allowRotation);
                 tileMap.maxOverlap = EditorGUILayout.FloatField("Maximum Collision Overlap:", tileMap.maxOverlap);
                 tileMap.minTileCount = EditorGUILayout.IntField("Minumum Tiles Per Map:", tileMap.minTileCount);
